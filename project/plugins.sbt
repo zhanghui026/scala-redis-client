@@ -1,5 +1,7 @@
-addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.0.0-M2")
+addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.1.0")
 
-addSbtPlugin("org.ensime" % "ensime-sbt-cmd" % "0.0.10")
+resolvers += Resolver.url("sbt-plugin-releases", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases")) (Resolver.ivyStylePatterns)
 
-addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.0.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.7")
+
+addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.6")
