@@ -67,11 +67,11 @@ class SingleRedis(pool: JedisPool) extends Redis {
   
   def lpop(key: String) = this.run(redis => {Option(redis.lpop(key))})
   
-  def brpop(timeout: Int, keys: List[String]) = this.run(redis => {redis.brpop(timeout, keys : _*).toList})
+  def brpop(timeout: Int, keys: Seq[String]) = this.run(redis => {redis.brpop(timeout, keys : _*).toSeq})
   
   def llength(key: String) = this.run(redis => {redis.llen(key)})
   
-  def lrange(key: String, start: Long, end: Long) = this.run(redis => {redis.lrange(key, start, end).toList})
+  def lrange(key: String, start: Long, end: Long) = this.run(redis => {redis.lrange(key, start, end).toSeq})
   
   def ltrim(key: String, start: Long, end: Long) = this.run(redis => {redis.ltrim(key, start, end)})
   
@@ -85,13 +85,13 @@ class SingleRedis(pool: JedisPool) extends Redis {
   
   def zrem(key: String, member: String) = this.run(redis => {redis.zrem(key, member)})
   
-  def zrevrange(key: String, start: Int, end: Int) = this.run(redis => {redis.zrevrange(key, start, end).toList})
+  def zrevrange(key: String, start: Int, end: Int) = this.run(redis => {redis.zrevrange(key, start, end).toSeq})
   
-  def zrevrangeWithScores(key: String, start: Int, end: Int) = this.run(redis => {redis.zrevrangeWithScores(key, start, end).toList.map(t => (t.getElement(), t.getScore))})
+  def zrevrangeWithScores(key: String, start: Int, end: Int) = this.run(redis => {redis.zrevrangeWithScores(key, start, end).toSeq.map(t => (t.getElement(), t.getScore))})
   
-  def zrange(key: String, start: Int, end: Int) = this.run(redis => {redis.zrange(key, start, end).toList})
+  def zrange(key: String, start: Int, end: Int) = this.run(redis => {redis.zrange(key, start, end).toSeq})
   
-  def zrangeWithScores(key: String, start: Int, end: Int) = this.run(redis => {redis.zrangeWithScores(key, start, end).toList.map(t => (t.getElement(), t.getScore))})
+  def zrangeWithScores(key: String, start: Int, end: Int) = this.run(redis => {redis.zrangeWithScores(key, start, end).toSeq.map(t => (t.getElement(), t.getScore))})
   
   def zrank(key: String, member: String) = this.run(redis => {
     redis.zrank(key, member) match {
@@ -132,7 +132,7 @@ class SingleRedis(pool: JedisPool) extends Redis {
     }
   }
   
-  def watch[T](keys: List[String], task: (Jedis) => T) = this.run(redis => {
+  def watch[T](keys: Seq[String], task: (Jedis) => T) = this.run(redis => {
     redis.watch(keys : _*)
     task(redis)
   })
@@ -147,13 +147,13 @@ class SingleRedis(pool: JedisPool) extends Redis {
     })
   }
   
-  def syncAndReturnAll(task:(Pipeline) => Unit): List[AnyRef] = {
+  def syncAndReturnAll(task:(Pipeline) => Unit): Seq[AnyRef] = {
     this.run(redis => {
       val pipeline = redis.pipelined()
       
       task(new SinglePipeline(pipeline))
       
-      pipeline.syncAndReturnAll().toList
+      pipeline.syncAndReturnAll().toSeq
     })
   }
   

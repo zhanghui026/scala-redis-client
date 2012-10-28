@@ -58,7 +58,7 @@ trait Redis {
   
   def llength(key: String): Long
   
-  def lrange(key: String, start: Long, end: Long): List[String]
+  def lrange(key: String, start: Long, end: Long): Seq[String]
   
   def ltrim(key: String, start: Long, end: Long): String
   
@@ -72,13 +72,13 @@ trait Redis {
   
   def zrem(key: String, member: String): Long
   
-  def zrevrange(key: String, start: Int, end: Int): List[String]
+  def zrevrange(key: String, start: Int, end: Int): Seq[String]
   
-  def zrevrangeWithScores(key: String, start: Int, end: Int): List[(String, Double)]
+  def zrevrangeWithScores(key: String, start: Int, end: Int): Seq[(String, Double)]
   
-  def zrange(key: String, start: Int, end: Int): List[String]
+  def zrange(key: String, start: Int, end: Int): Seq[String]
   
-  def zrangeWithScores(key: String, start: Int, end: Int): List[(String, Double)]
+  def zrangeWithScores(key: String, start: Int, end: Int): Seq[(String, Double)]
   
   def zrank(key: String, member: String): Option[Long]
   
@@ -94,7 +94,7 @@ trait Redis {
   
   def exec(task: (Pipeline) => Unit)
   
-  def syncAndReturnAll(task: (Pipeline) => Unit): List[AnyRef]
+  def syncAndReturnAll(task: (Pipeline) => Unit): Seq[AnyRef]
   
   def shutdown
 }

@@ -64,7 +64,7 @@ class ShardedRedis(pool: ShardedJedisPool) extends Redis {
   
   def llength(key: String) = this.run(redis => {redis.llen(key)})
   
-  def lrange(key: String, start: Long, end: Long) = this.run(redis => {redis.lrange(key, start, end).toList})
+  def lrange(key: String, start: Long, end: Long) = this.run(redis => {redis.lrange(key, start, end).toSeq})
   
   def rpush(key: String, value: String) = this.run(redis => {redis.rpush(key, value)})
   
@@ -78,13 +78,13 @@ class ShardedRedis(pool: ShardedJedisPool) extends Redis {
   
   def zrem(key: String, member: String) = this.run(redis => {redis.zrem(key, member)})
   
-  def zrevrange(key: String, start: Int, end: Int) = this.run(redis => {redis.zrevrange(key, start, end).toList})
+  def zrevrange(key: String, start: Int, end: Int) = this.run(redis => {redis.zrevrange(key, start, end).toSeq})
   
-  def zrevrangeWithScores(key: String, start: Int, end: Int) = this.run(redis => {redis.zrevrangeWithScores(key, start, end).toList.map(t => (t.getElement(), t.getScore))})
+  def zrevrangeWithScores(key: String, start: Int, end: Int) = this.run(redis => {redis.zrevrangeWithScores(key, start, end).toSeq.map(t => (t.getElement(), t.getScore))})
   
-  def zrange(key: String, start: Int, end: Int) = this.run(redis => {redis.zrange(key, start, end).toList})
+  def zrange(key: String, start: Int, end: Int) = this.run(redis => {redis.zrange(key, start, end).toSeq})
   
-  def zrangeWithScores(key: String, start: Int, end: Int) = this.run(redis => {redis.zrangeWithScores(key, start, end).toList.map(t => (t.getElement(), t.getScore))})
+  def zrangeWithScores(key: String, start: Int, end: Int) = this.run(redis => {redis.zrangeWithScores(key, start, end).toSeq.map(t => (t.getElement(), t.getScore))})
   
   def zrank(key: String, member: String) = this.run(redis => {
     redis.zrank(key, member) match {
@@ -123,22 +123,24 @@ class ShardedRedis(pool: ShardedJedisPool) extends Redis {
   
   def exec(task:(Pipeline) => Unit) {
     this.run(redis => {
-      val pipeline = redis.pipelined()
-      
+      val pipeline = shardedJedisPipeline(redis)
       task(new ShardedPipeline(pipeline))
-      
       pipeline.sync()
     })
   }
   
-  def syncAndReturnAll(task:(Pipeline) => Unit): List[AnyRef] = {
+  def syncAndReturnAll(task:(Pipeline) => Unit): Seq[AnyRef] = {
     this.run(redis => {
-      val pipeline = redis.pipelined()
-      
+      val pipeline = shardedJedisPipeline(redis)
       task(new ShardedPipeline(pipeline))
-      
-      pipeline.syncAndReturnAll().toList
+      pipeline.syncAndReturnAll().toSeq
     })
+  }
+  
+  protected def shardedJedisPipeline(redis: ShardedJedis): ShardedJedisPipeline = {
+    val pipeline = new ShardedJedisPipeline()
+    pipeline.setShardedJedis(redis)
+    pipeline
   }
   
   def shutdown = pool.destroy()
