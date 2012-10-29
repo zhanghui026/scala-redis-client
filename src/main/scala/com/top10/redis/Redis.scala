@@ -1,6 +1,9 @@
 package com.top10.redis
 
 import redis.clients.jedis.JedisCommands
+import redis.clients.jedis.JedisPool
+import redis.clients.jedis.JedisPoolConfig
+import org.apache.commons.pool.impl.GenericObjectPool
 
 trait Redis {
   
@@ -97,6 +100,22 @@ trait Redis {
   def syncAndReturnAll(task: (Pipeline) => Unit): Seq[AnyRef]
   
   def shutdown
+}
+
+object Redis {
+  def config(poolSize: Int): JedisPoolConfig = {
+    val config = new JedisPoolConfig()
+    config.setTestOnBorrow(true)
+    config.setTestWhileIdle(true)
+    config.setMaxActive(poolSize)
+    config.setWhenExhaustedAction(GenericObjectPool.WHEN_EXHAUSTED_BLOCK)
+    config
+  }
+  
+  def pool(config: JedisPoolConfig, host: String, port: Int, pwd: Option[String], timeout: Int): JedisPool = {
+    pwd.map(password => new JedisPool(config, host, port, timeout, password))
+       .getOrElse(new JedisPool(config, host, port, timeout))
+  }
 }
 
 case class UnspportedShardedOperation(op: String) extends Exception("Sharded implementation doesn't support: "+op)

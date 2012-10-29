@@ -5,8 +5,17 @@ import scala.collection.JavaConversions._
 import redis.clients.jedis.ShardedJedis
 import redis.clients.jedis.Transaction
 import redis.clients.jedis.ShardedJedisPipeline
+import redis.clients.jedis.JedisPoolConfig
+import redis.clients.jedis.JedisShardInfo
+import redis.clients.util.Hashing
+import com.top10.redis.Redis._
+import redis.clients.util.ShardInfo
 
 class ShardedRedis(pool: ShardedJedisPool) extends Redis {
+  
+  def this(config: JedisPoolConfig, shardInfo: Iterable[JedisShardInfo], hashing: Option[Hashing]) = this(ShardedRedis.pool(config, shardInfo.toList, hashing))
+  
+  def this(shards: Iterable[Shard], poolSize: Int = 60, hashing: Option[Hashing] = None) = this(Redis.config(poolSize), Shard.toShardInfo(shards), hashing)
   
   def del(key: String) = this.run(redis => {redis.del(key)})
   
@@ -150,4 +159,23 @@ class ShardedRedis(pool: ShardedJedisPool) extends Redis {
   def keys(pattern: String) = throw UnspportedShardedOperation("keys")
   
   def ping = throw UnspportedShardedOperation("ping")
+}
+
+case class Shard(host: String, port: Int, pwd: Option[String] = None, timeout: Int = 3600000) {
+  def toShardInfo(): JedisShardInfo = {
+    val info = new JedisShardInfo(host, port, timeout, host+":"+port)
+    pwd.foreach(password => info.setPassword(password))
+    info
+  }
+}
+
+object Shard {
+  def toShardInfo(shards: Iterable[Shard]): Seq[JedisShardInfo] = shards.map(_.toShardInfo).toSeq
+}
+
+object ShardedRedis {
+  def pool(config: JedisPoolConfig, shardInfo: Iterable[JedisShardInfo], hashing: Option[Hashing]): ShardedJedisPool = {
+    hashing.map(hash => new ShardedJedisPool(config, shardInfo.toList, hash))
+           .getOrElse(new ShardedJedisPool(config, shardInfo.toList))
+  }
 }
