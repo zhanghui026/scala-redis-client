@@ -77,11 +77,11 @@ trait Redis {
   
   def zrevrange(key: String, start: Int, end: Int): Seq[String]
   
-  def zrevrangeWithScores(key: String, start: Int, end: Int): Seq[(String, Double)]
+  def zrevrangeWithScores(key: String, start: Int, end: Int): Map[String, Double]
   
   def zrange(key: String, start: Int, end: Int): Seq[String]
   
-  def zrangeWithScores(key: String, start: Int, end: Int): Seq[(String, Double)]
+  def zrangeWithScores(key: String, start: Int, end: Int): Map[String, Double]
   
   def zrank(key: String, member: String): Option[Long]
   

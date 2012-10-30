@@ -89,11 +89,11 @@ class ShardedRedis(pool: ShardedJedisPool) extends Redis {
   
   def zrevrange(key: String, start: Int, end: Int) = this.run(redis => {redis.zrevrange(key, start, end).toSeq})
   
-  def zrevrangeWithScores(key: String, start: Int, end: Int) = this.run(redis => {redis.zrevrangeWithScores(key, start, end).toSeq.map(t => (t.getElement(), t.getScore))})
+  def zrevrangeWithScores(key: String, start: Int, end: Int) = this.run(redis => {redis.zrevrangeWithScores(key, start, end).toSeq.map(t => (t.getElement(), t.getScore)).toMap})
   
   def zrange(key: String, start: Int, end: Int) = this.run(redis => {redis.zrange(key, start, end).toSeq})
   
-  def zrangeWithScores(key: String, start: Int, end: Int) = this.run(redis => {redis.zrangeWithScores(key, start, end).toSeq.map(t => (t.getElement(), t.getScore))})
+  def zrangeWithScores(key: String, start: Int, end: Int) = this.run(redis => {redis.zrangeWithScores(key, start, end).toSeq.map(t => (t.getElement(), t.getScore)).toMap})
   
   def zrank(key: String, member: String) = this.run(redis => {
     redis.zrank(key, member) match {

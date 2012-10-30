@@ -6,6 +6,7 @@ object RedisJavaMapping {
   val STRING     = manifest[String]
   val OPT_STRING = manifest[Option[String]]
   val SEQ_STRING = manifest[Seq[String]]
+  val SET_STRING = manifest[Set[String]]
   val MAP_STRING = manifest[Map[String, String]]
   val MAP_DOUBLE = manifest[Map[String, Double]]
   val LONG       = manifest[Long]
@@ -22,6 +23,7 @@ object RedisJavaMapping {
       case DOUBLE     => value.asInstanceOf[java.lang.Double].toDouble.asInstanceOf[M]
       case OPT_DOUBLE => Option(value.asInstanceOf[java.lang.Double]).map(_.toDouble).asInstanceOf[M]
       case SEQ_STRING => Option(value.asInstanceOf[java.util.LinkedHashSet[String]]).map(_.toSeq).getOrElse(Seq[String]()).asInstanceOf[M]
+      case SET_STRING => Option(value.asInstanceOf[java.util.HashSet[String]]).map(_.toSet).getOrElse(Set[String]()).asInstanceOf[M]
       case MAP_STRING => Option(value.asInstanceOf[java.util.Map[String, String]]).map(_.toMap).getOrElse(Map[String, String]()).asInstanceOf[M]
       case MAP_DOUBLE => Option(value.asInstanceOf[java.util.LinkedHashSet[_root_.redis.clients.jedis.Tuple]]).map(_.toSeq.map(e => e.getElement() -> e.getScore()).toMap).getOrElse(Map[String, Double]()).asInstanceOf[M]
       case m          => throw new InvalidMappingException(m)
