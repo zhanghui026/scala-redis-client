@@ -13,7 +13,7 @@ import redis.clients.jedis.ShardedJedisPool
 import scala.collection.JavaConversions._
 
 object RedisTestHelper {
-  val PASSWORD = "somepassword"
+  val PASSWORD = "onerecruit"
   private val config = new JedisPoolConfig();
   config.setTestOnBorrow(true)
 

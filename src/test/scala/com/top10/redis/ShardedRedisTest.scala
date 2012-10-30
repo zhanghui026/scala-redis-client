@@ -14,11 +14,6 @@ class ShardedRedisTest extends JUnitSuite with ShouldMatchersForJUnit with Redis
   }
   
   @Test def testSetGetDelete() {
-    if(!redisIsRunning) {
-      printf("Redis is not running, passing test anyway")
-      return
-    }
-    
     shardedRedis.set("testKey", "testValue")
     shardedRedis.get("testKey") should be (Some("testValue"))
     
@@ -27,11 +22,6 @@ class ShardedRedisTest extends JUnitSuite with ShouldMatchersForJUnit with Redis
   }
 
   @Test def testPipeline() {
-    if(!redisIsRunning) {
-      printf("Redis is not running, passing test anyway")
-      return
-    }
-    
     shardedRedis.exec(pipeline => {
       pipeline.set("foo", "bar")
       pipeline.set("bar", "foo")
@@ -56,38 +46,18 @@ class ShardedRedisTest extends JUnitSuite with ShouldMatchersForJUnit with Redis
   }
   
   @Test def testNullZscore() {
-    if(!redisIsRunning) {
-      printf("Redis is not running, passing test anyway")
-      return
-    }
-    
     shardedRedis.zscore("whatevs", "yourmum") should be (None)
   }
   
   @Test def testNullGet() {
-    if(!redisIsRunning) {
-      printf("Redis is not running, passing test anyway")
-      return
-    }
-    
     shardedRedis.get("whatevs") should be (None)
   }
   
   @Test def testNullZrank() {
-    if(!redisIsRunning) {
-      printf("Redis is not running, passing test anyway")
-      return
-    }
-    
     shardedRedis.zrank("whatevs", "whatevs") should be (None)
   }
   
   @Test def testZRangeWithScores() {
-    if(!redisIsRunning) {
-      printf("Redis is not running, passing test anyway")
-      return
-    }
-    
     shardedRedis.zadd("zrangeTest", 0, "0")
     shardedRedis.zadd("zrangeTest", 1, "1")
     shardedRedis.zadd("zrangeTest", 2, "2")
@@ -110,5 +80,15 @@ class ShardedRedisTest extends JUnitSuite with ShouldMatchersForJUnit with Redis
     results(1).asInstanceOf[java.util.LinkedHashSet[_root_.redis.clients.jedis.Tuple]].toList.map(t => (t.getElement(), t.getScore())) should be (List(("0", 0.0), ("1", 1.0), ("2", 2.0)))
     results(2).asInstanceOf[java.util.LinkedHashSet[String]].toList should be (List("2", "1", "0"))
     results(3).asInstanceOf[java.util.LinkedHashSet[_root_.redis.clients.jedis.Tuple]].toList.map(t => (t.getElement(), t.getScore())) should be (List(("2", 2.0), ("1", 1.0), ("0", 0.0)))
+  }
+  
+  @Test def get9results {
+    shardedRedis.set("some", "thing")
+    
+    val results = shardedRedis.syncAndReturn[String, String, String, String, String, String, String, String, String](pipeline => {
+      (0 until 9).foreach(i => pipeline.get("some"))
+    })
+    
+    results should be (("thing", "thing", "thing", "thing", "thing", "thing", "thing", "thing", "thing"))
   }
 }

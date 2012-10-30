@@ -18,11 +18,6 @@ class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHel
   }
   
   @Test def testSetGetDelete() {
-    if(!redisIsRunning) {
-      printf("Redis is not running, passing test anyway")
-      return
-    }
-    
     redis.flushAll
     
     redis.set("testKey", "testValue")
@@ -33,11 +28,6 @@ class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHel
   }
   
   @Test def testMultiSuccess() {
-    if(!redisIsRunning) {
-      printf("Redis is not running, passing test anyway")
-      return
-    }
-    
     redis.set("testKey", "testValue")
     val result = redis.watch(List("testKey"), watched => {
       val t = watched.multi()
@@ -51,11 +41,6 @@ class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHel
   }
   
   @Test def testMultiFail() {
-    if(!redisIsRunning) {
-      printf("Redis is not running, passing test anyway")
-      return
-    }
-    
     redis.set("testKey", "testValue")
     val result = redis.watch(List("testKey"), watched => {
       val t = watched.multi()
@@ -70,38 +55,18 @@ class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHel
 
   
   @Test def testNullZscore() {
-    if(!redisIsRunning) {
-      printf("Redis is not running, passing test anyway")
-      return
-    }
-    
     redis.zscore("whatevs", "yourmum") should be (None)
   }
   
   @Test def testNullGet() {
-    if(!redisIsRunning) {
-      printf("Redis is not running, passing test anyway")
-      return
-    }
-    
     redis.get("whatevs") should be (None)
   }
   
   @Test def testNullZrank() {
-    if(!redisIsRunning) {
-      printf("Redis is not running, passing test anyway")
-      return
-    }
-    
     redis.zrank("whatevs", "whatevs") should be (None)
   }
   
   @Test def testZRangeWithScores() {
-    if(!redisIsRunning) {
-      printf("Redis is not running, passing test anyway")
-      return
-    }
-    
     redis.zadd("zrangeTest", 0, "0")
     redis.zadd("zrangeTest", 1, "1")
     redis.zadd("zrangeTest", 2, "2")
@@ -124,5 +89,35 @@ class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHel
     results(1).asInstanceOf[java.util.LinkedHashSet[_root_.redis.clients.jedis.Tuple]].toList.map(t => (t.getElement(), t.getScore())) should be (List(("0", 0.0), ("1", 1.0), ("2", 2.0)))
     results(2).asInstanceOf[java.util.LinkedHashSet[String]].toList should be (List("2", "1", "0"))
     results(3).asInstanceOf[java.util.LinkedHashSet[_root_.redis.clients.jedis.Tuple]].toList.map(t => (t.getElement(), t.getScore())) should be (List(("2", 2.0), ("1", 1.0), ("0", 0.0)))
+  }
+  
+  @Test def testZRangeWithScoresSync {
+    redis.zadd("zrangeTest", 0, "0")
+    redis.zadd("zrangeTest", 1, "1")
+    redis.zadd("zrangeTest", 2, "2")
+    
+    redis.zrange("zrangeTest", 0, -1) should be (List("0", "1", "2"))
+    redis.zrangeWithScores("zrangeTest", 0, -1) should be (List(("0", 0.0), ("1", 1.0), ("2", 2.0)))
+    
+    redis.zrevrange("zrangeTest", 0, -1) should be (List("2", "1", "0"))
+    redis.zrevrangeWithScores("zrangeTest", 0, -1) should be (List(("2", 2.0), ("1", 1.0), ("0", 0.0)))
+    
+    val results = redis.syncAndReturn[Seq[String], Map[String, Double]](pipeline => {
+      pipeline.zrange("zrangeTest", 0, -1)
+      pipeline.zrangeWithScores("zrangeTest", 0, -1)
+    })
+    
+    results._1 should be (Seq("0", "1", "2"))
+    results._2 should be (Map("0" -> 0.0, "1" -> 1.0, "2" -> 2.0))
+  }
+  
+  @Test def get9results {
+    redis.set("some", "thing")
+    
+    val results = redis.syncAndReturn[String, String, String, String, String, String, String, String, String](pipeline => {
+      (0 until 9).foreach(i => pipeline.get("some"))
+    })
+    
+    results should be (("thing", "thing", "thing", "thing", "thing", "thing", "thing", "thing", "thing"))
   }
 }
