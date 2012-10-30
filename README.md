@@ -48,4 +48,10 @@ If you want to get stuff, use the typed syncAndReturn function which returns a T
 
 Unfortunately this only provides RUNTIME exceptions if you get the type parameters wrong (either the number or number of them). Will try an will out how to make this a compile time problem (pull requests welcome).
 
+In a similar fashion, if you want to get a load of results of the same type, you can use syncAndReturnAllAs:
+
+    val results = redis.syncAndReturnAll[Map[String,Double]](pipeline => {
+      (0 until 100).foreach(i => pipeline.zrevrangeWithScores("sortedsetkey:"+i, 0, -1))
+    })
+
 Anyway, if you find any problems or ommissions, please let us know.
