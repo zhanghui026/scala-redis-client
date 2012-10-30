@@ -38,7 +38,7 @@ class RedisJavaMappingUnitTest extends JUnitSuite with ShouldMatchersForJUnit {
     RedisJavaMapping.as[Redis](new java.lang.String("some string"))
   }
   
-  @Test(expected=classOf[ClassCastException]) def mapToWrongType {
+  @Test(expected=classOf[InvalidMappingException]) def mapToWrongType {
     RedisJavaMapping.as[String](new java.lang.Long(1L))
   }
   

@@ -17,25 +17,35 @@ object RedisJavaMapping {
   
   def as[M : Manifest](value: Any): M = {
     manifest[M] match {
-      case STRING     => value.asInstanceOf[String].asInstanceOf[M]
-      case OPT_STRING => Option(value.asInstanceOf[java.lang.String]).asInstanceOf[M]
-      case LONG       => Option(value.asInstanceOf[java.lang.Long]).map(_.toLong).getOrElse(0).asInstanceOf[M]
-      case BOOLEAN    => Option(value.asInstanceOf[java.lang.Long]).map(_ > 0).getOrElse(false).asInstanceOf[M]
-      case DOUBLE     => value.asInstanceOf[java.lang.Double].toDouble.asInstanceOf[M]
-      case OPT_DOUBLE => Option(value.asInstanceOf[java.lang.Double]).map(_.toDouble).asInstanceOf[M]
-      case SEQ_STRING => {
-        val possible = if (value.isInstanceOf[java.util.ArrayList[String]]) Option(value.asInstanceOf[java.util.ArrayList[String]])
-                       else Option(value.asInstanceOf[java.util.LinkedHashSet[String]])
-        possible.map(_.toSeq).getOrElse(Seq[String]()).asInstanceOf[M]
-      }
-      case SET_STRING => Option(value.asInstanceOf[java.util.HashSet[String]]).map(_.toSet).getOrElse(Set[String]()).asInstanceOf[M]
-      case MAP_STRING => Option(value.asInstanceOf[java.util.Map[String, String]]).map(_.toMap).getOrElse(Map[String, String]()).asInstanceOf[M]
-      case MAP_DOUBLE => Option(value.asInstanceOf[java.util.LinkedHashSet[_root_.redis.clients.jedis.Tuple]]).map(_.toSeq.map(e => e.getElement() -> e.getScore()).toMap).getOrElse(Map[String, Double]()).asInstanceOf[M]
+      case STRING     if (value.isInstanceOf[java.lang.String]) =>
+        value.asInstanceOf[String].asInstanceOf[M]
+      case OPT_STRING if (value == null || value.isInstanceOf[java.lang.String]) => 
+        Option(value.asInstanceOf[java.lang.String]).asInstanceOf[M]
+      case LONG       if (value == null || value.isInstanceOf[java.lang.Long]) => 
+        Option(value.asInstanceOf[java.lang.Long]).map(_.toLong).getOrElse(0).asInstanceOf[M]
+      case BOOLEAN    if (value == null || value.isInstanceOf[java.lang.Long]) => 
+        Option(value.asInstanceOf[java.lang.Long]).map(_ > 0).getOrElse(false).asInstanceOf[M]
+      case BOOLEAN    if (value == null || value.isInstanceOf[java.lang.Boolean]) => 
+        Option(value.asInstanceOf[java.lang.Boolean]).getOrElse(false).asInstanceOf[M]
+      case DOUBLE     if (value == null || value.isInstanceOf[java.lang.Double]) => 
+        Option(value.asInstanceOf[java.lang.Double]).map(_.toDouble).getOrElse(0.0d).asInstanceOf[M]
+      case OPT_DOUBLE if (value == null || value.isInstanceOf[java.lang.Double]) => 
+        Option(value.asInstanceOf[java.lang.Double]).map(_.toDouble).asInstanceOf[M]
+      case SEQ_STRING if (value == null || value.isInstanceOf[java.util.ArrayList[_]]) => 
+        Option(value.asInstanceOf[java.util.ArrayList[String]]).map(_.toSeq).getOrElse(Seq[String]()).asInstanceOf[M]
+      case SEQ_STRING if (value.isInstanceOf[java.util.LinkedHashSet[_]]) => 
+        Option(value.asInstanceOf[java.util.LinkedHashSet[String]]).map(_.toSeq).getOrElse(Seq[String]()).asInstanceOf[M]
+      case SET_STRING if (value == null || value.isInstanceOf[java.util.HashSet[_]]) => 
+        Option(value.asInstanceOf[java.util.HashSet[String]]).map(_.toSet).getOrElse(Set[String]()).asInstanceOf[M]
+      case MAP_STRING if (value == null || value.isInstanceOf[java.util.Map[_, _]]) => 
+        Option(value.asInstanceOf[java.util.Map[String, String]]).map(_.toMap).getOrElse(Map[String, String]()).asInstanceOf[M]
+      case MAP_DOUBLE if (value == null || value.isInstanceOf[java.util.LinkedHashSet[_]]) => 
+        Option(value.asInstanceOf[java.util.LinkedHashSet[_root_.redis.clients.jedis.Tuple]]).map(_.toSeq.map(e => e.getElement() -> e.getScore()).toMap).getOrElse(Map[String, Double]()).asInstanceOf[M]
       case NOTHING    => Nil.asInstanceOf[M]
-      case m          => throw new InvalidMappingException(m)
+      case m          => throw new InvalidMappingException(m, Option(value).map(_.getClass))
     }
   }
   
 }
 
-case class InvalidMappingException(valueType: Manifest[_]) extends RuntimeException("Cannot map type of "+valueType)
+case class InvalidMappingException(requestedType: Manifest[_], valueType: Option[Class[_]]) extends RuntimeException("Cannot map type of "+requestedType+" with value of type: "+valueType)
