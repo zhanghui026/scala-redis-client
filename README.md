@@ -1,4 +1,4 @@
-scala-redis-client
+Scala Redis Client
 ==================
 
 Idiomatic Scala [Redis](http://redis.io) client developed and used by [Top10](http://top10.com). This is a work-in-progress and, while it is used in production, should be treated as such.
