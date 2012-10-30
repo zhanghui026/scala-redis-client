@@ -8,8 +8,8 @@ Currently this client wraps the Java [Jedis](https://github.com/xetorthio/jedis)
 Usage
 -----
 
-* Current 'stable' version: 1.2.0
-* Unstable version: 1.3.0-SNAPSHOT
+* Current 'stable' version: 1.3.0
+* Unstable version: 1.4.0-SNAPSHOT
 * Scala version: 2.9.1 (will cross build if requested)
 
 Published to the Sonatype [release](https://oss.sonatype.org/content/repositories/releases/) and [snapshot](https://oss.sonatype.org/content/repositories/snapshots/) repositories.
@@ -17,7 +17,7 @@ Published to the Sonatype [release](https://oss.sonatype.org/content/repositorie
     resolvers += "Sonatype OSS Releases" at "http://oss.sonatype.org/content/repositories/releases/"
 
     libraryDependencies ++= Seq(
-      "com.top10" %% "scala-redis-client" % "1.2.0" withSources()
+      "com.top10" %% "scala-redis-client" % "1.3.0" withSources()
     )
 
 You can instantiate SingleRedis and ShardedRedis using the Jedis config objects, but I guess you'd rather not. Optional arguments have (not particularly scientific) sensible defaults:
