@@ -13,6 +13,7 @@ object RedisJavaMapping {
   val BOOLEAN    = manifest[Boolean]
   val OPT_DOUBLE = manifest[Option[Double]]
   val DOUBLE     = manifest[Double]
+  val NOTHING    = manifest[Nothing]
   
   def as[M : Manifest](value: Any): M = {
     manifest[M] match {
@@ -26,6 +27,7 @@ object RedisJavaMapping {
       case SET_STRING => Option(value.asInstanceOf[java.util.HashSet[String]]).map(_.toSet).getOrElse(Set[String]()).asInstanceOf[M]
       case MAP_STRING => Option(value.asInstanceOf[java.util.Map[String, String]]).map(_.toMap).getOrElse(Map[String, String]()).asInstanceOf[M]
       case MAP_DOUBLE => Option(value.asInstanceOf[java.util.LinkedHashSet[_root_.redis.clients.jedis.Tuple]]).map(_.toSeq.map(e => e.getElement() -> e.getScore()).toMap).getOrElse(Map[String, Double]()).asInstanceOf[M]
+      case NOTHING    => Nil.asInstanceOf[M]
       case m          => throw new InvalidMappingException(m)
     }
   }
