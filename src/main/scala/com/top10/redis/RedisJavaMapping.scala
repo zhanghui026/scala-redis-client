@@ -23,7 +23,11 @@ object RedisJavaMapping {
       case BOOLEAN    => Option(value.asInstanceOf[java.lang.Long]).map(_ > 0).getOrElse(false).asInstanceOf[M]
       case DOUBLE     => value.asInstanceOf[java.lang.Double].toDouble.asInstanceOf[M]
       case OPT_DOUBLE => Option(value.asInstanceOf[java.lang.Double]).map(_.toDouble).asInstanceOf[M]
-      case SEQ_STRING => Option(value.asInstanceOf[java.util.LinkedHashSet[String]]).map(_.toSeq).getOrElse(Seq[String]()).asInstanceOf[M]
+      case SEQ_STRING => {
+        val possible = if (value.isInstanceOf[java.util.ArrayList[String]]) Option(value.asInstanceOf[java.util.ArrayList[String]])
+                       else Option(value.asInstanceOf[java.util.LinkedHashSet[String]])
+        possible.map(_.toSeq).getOrElse(Seq[String]()).asInstanceOf[M]
+      }
       case SET_STRING => Option(value.asInstanceOf[java.util.HashSet[String]]).map(_.toSet).getOrElse(Set[String]()).asInstanceOf[M]
       case MAP_STRING => Option(value.asInstanceOf[java.util.Map[String, String]]).map(_.toMap).getOrElse(Map[String, String]()).asInstanceOf[M]
       case MAP_DOUBLE => Option(value.asInstanceOf[java.util.LinkedHashSet[_root_.redis.clients.jedis.Tuple]]).map(_.toSeq.map(e => e.getElement() -> e.getScore()).toMap).getOrElse(Map[String, Double]()).asInstanceOf[M]
