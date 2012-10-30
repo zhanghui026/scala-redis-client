@@ -15,3 +15,5 @@ project/plugins/project/
 .cache
 .project
 .classpath
+
+*.swp

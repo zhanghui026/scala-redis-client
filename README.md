@@ -3,13 +3,13 @@ scala-redis-client
 
 Idiomatic Scala [Redis](http://redis.io) client developed and used by [Top10](http://top10.com). This is a work-in-progress and, while it is used in production, should be treated as such.
 
-Currently this client wraps the Java [Jedis](https://github.com/xetorthio/jedis) client and in places that still leaks out.
+Currently this client wraps the Java [Jedis](https://github.com/xetorthio/jedis) client and in places that still leaks out. We've had to patch Jedis in a few ways and have left the patched files in src/main/java. When the pull requests get merged in and released as a new Jedis version we'll get rid of them, but that doesn't look like it's going to happen any time soon.
 
 Usage
 -----
 
-* Current 'stable' version: 1.3.0
-* Unstable version: 1.4.0-SNAPSHOT
+* Current 'stable' version: 1.4.0
+* Unstable version: 1.5.0-SNAPSHOT
 * Scala version: 2.9.1 (will cross build if requested)
 
 Published to the Sonatype [release](https://oss.sonatype.org/content/repositories/releases/) and [snapshot](https://oss.sonatype.org/content/repositories/snapshots/) repositories.
