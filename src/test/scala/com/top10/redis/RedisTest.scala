@@ -72,10 +72,10 @@ class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHel
     redis.zadd("zrangeTest", 2, "2")
     
     redis.zrange("zrangeTest", 0, -1) should be (List("0", "1", "2"))
-    redis.zrangeWithScores("zrangeTest", 0, -1) should be (List(("0", 0.0), ("1", 1.0), ("2", 2.0)))
+    redis.zrangeWithScores("zrangeTest", 0, -1) should be (Map("0" -> 0.0, "1" -> 1.0, "2" -> 2.0))
     
     redis.zrevrange("zrangeTest", 0, -1) should be (List("2", "1", "0"))
-    redis.zrevrangeWithScores("zrangeTest", 0, -1) should be (List(("2", 2.0), ("1", 1.0), ("0", 0.0)))
+    redis.zrevrangeWithScores("zrangeTest", 0, -1) should be (Map("2"-> 2.0, "1" -> 1.0, "0" -> 0.0))
     
     val results = redis.syncAndReturnAll(pipeline => {
       pipeline.zrange("zrangeTest", 0, -1)
@@ -97,10 +97,10 @@ class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHel
     redis.zadd("zrangeTest", 2, "2")
     
     redis.zrange("zrangeTest", 0, -1) should be (List("0", "1", "2"))
-    redis.zrangeWithScores("zrangeTest", 0, -1) should be (List(("0", 0.0), ("1", 1.0), ("2", 2.0)))
+    redis.zrangeWithScores("zrangeTest", 0, -1) should be (Map("0" -> 0.0, "1" -> 1.0, "2" -> 2.0))
     
     redis.zrevrange("zrangeTest", 0, -1) should be (List("2", "1", "0"))
-    redis.zrevrangeWithScores("zrangeTest", 0, -1) should be (List(("2", 2.0), ("1", 1.0), ("0", 0.0)))
+    redis.zrevrangeWithScores("zrangeTest", 0, -1) should be (Map("2" -> 2.0, "1" -> 1.0, "0" -> 0.0))
     
     val results = redis.syncAndReturn[Seq[String], Map[String, Double]](pipeline => {
       pipeline.zrange("zrangeTest", 0, -1)
