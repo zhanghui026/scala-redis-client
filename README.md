@@ -20,6 +20,17 @@ Published to the Sonatype [release](https://oss.sonatype.org/content/repositorie
       "com.top10" %% "scala-redis-client" % "1.3.0" withSources()
     )
 
+Because we have had to bundle some patched files from Jedis, if you are using the assembly plugin you'll need to set a MergeStategy that chooses them:
+
+    mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
+      {
+        case PathList("redis", "clients", xs @ _*) => MergeStrategy.first
+        case x => old(x)
+      }
+    }
+
+Please let us know if there's a better way of doing this.
+
 You can instantiate SingleRedis and ShardedRedis using the Jedis config objects, but I guess you'd rather not. Optional arguments have (not particularly scientific) sensible defaults:
 
     val redis = new SingleRedis("localhost", 6379, [Some("password")], [timeout], [poolSize])
