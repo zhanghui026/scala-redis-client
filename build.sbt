@@ -47,4 +47,9 @@ pomExtra := (
       <name>Ben Smith</name>
       <url>http://thesmith.co.uk</url>
     </developer>
+    <developer>
+      <id>tom-martin</id>
+      <name>Tom Martin</name>
+      <url>http://heychinaski.com</url>
+    </developer>
   </developers>)
