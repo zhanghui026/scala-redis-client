@@ -80,7 +80,7 @@ class SingleRedis(pool: JedisPool) extends Redis {
   
   def ltrim(key: String, start: Long, end: Long) = this.run(redis => {redis.ltrim(key, start, end)})
   
-  def lset(key: String, index: Long, value: String): Long = this.run(redis => {redis.lset(key, index, value).toLong})
+  def lset(key: String, index: Long, value: String) = this.run(redis => {redis.lset(key, index, value)})
   
   def lrem(key: String, value: String, number: Long) = this.run(redis => {redis.lrem(key, number, value)})
   

@@ -73,7 +73,7 @@ class ShardedRedis(pool: ShardedJedisPool) extends Redis {
   
   def llength(key: String) = this.run(redis => {redis.llen(key)})
   
-  def lset(key: String, index: Long, value: String): Long = this.run(redis => {redis.lset(key, index, value).toLong})
+  def lset(key: String, index: Long, value: String) = this.run(redis => {redis.lset(key, index, value)})
   
   def lrange(key: String, start: Long, end: Long) = this.run(redis => {redis.lrange(key, start, end).toSeq})
   
