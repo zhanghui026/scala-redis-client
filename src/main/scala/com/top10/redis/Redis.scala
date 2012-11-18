@@ -67,6 +67,8 @@ trait Redis {
   
   def lrem(key: String, value: String, number: Long): Long
   
+  def lset(key: String, index: Long, value: String): Long
+  
   def rpush(key: String, value: String): Long
   
   def lpush(key: String, value: String): Long
