@@ -52,13 +52,6 @@ trait RedisTestHelper {
       "dir /tmp/test-redis",
       "appendonly no",
       "appendfsync everysec",
-      "vm-enabled no",
-      "vm-max-memory 0",
-      "vm-page-size 32",
-      "vm-pages 134217728",
-      "vm-max-threads 4",
-      "hash-max-zipmap-entries 512",
-      "hash-max-zipmap-value 64",
       "activerehashing yes",
       "requirepass "+RedisTestHelper.PASSWORD)
       
@@ -78,13 +71,6 @@ trait RedisTestHelper {
       "dir /tmp/test-redis-2",
       "appendonly no",
       "appendfsync everysec",
-      "vm-enabled no",
-      "vm-max-memory 0",
-      "vm-page-size 32",
-      "vm-pages 134217728",
-      "vm-max-threads 4",
-      "hash-max-zipmap-entries 512",
-      "hash-max-zipmap-value 64",
       "activerehashing yes",
       "requirepass "+RedisTestHelper.PASSWORD)
 
