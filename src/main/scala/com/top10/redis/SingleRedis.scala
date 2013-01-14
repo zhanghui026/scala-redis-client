@@ -54,6 +54,10 @@ class SingleRedis(pool: JedisPool) extends Redis {
   
   def hmset(key: String, details: Map[String, String]) = this.run(redis => {redis.hmset(key, details)})
   
+  def incrby(key: String, increment: Int) = this.run(redis => { redis.incrBy(key, increment) })
+  
+  def incr(key: String) = this.run(redis => { redis.incr(key) })
+  
   def keys(pattern: String) = this.run(redis => {redis.keys(pattern).toSet})
   
   def put(key: String, values: Map[String, String]) = this.run(redis => {redis.hmset(key, values)})

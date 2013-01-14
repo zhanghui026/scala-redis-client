@@ -37,6 +37,10 @@ class SinglePipeline(redis: _root_.redis.clients.jedis.Pipeline) extends Pipelin
   
   def hmset(key: String, details: Map[String, String]) = redis.hmset(key, details)
   
+  def incrby(key: String, increment: Int) = redis.incrBy(key, increment)
+  
+  def incr(key: String) = redis.incr(key)
+  
   def keys(pattern: String) = redis.keys(pattern)
   
   def put(key: String, values: Map[String, String]) = redis.hmset(key, values)

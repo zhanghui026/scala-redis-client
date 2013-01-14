@@ -37,6 +37,10 @@ class ShardedPipeline(redis: _root_.redis.clients.jedis.ShardedJedisPipeline) ex
   
   def hmset(key: String, details: Map[String, String]) = redis.hmset(key, details)
   
+  def incrby(key: String, increment: Int) = redis.incrBy(key, increment)
+  
+  def incr(key: String) = redis.incr(key)
+  
   def keys(pattern: String) = throw UnspportedShardedOperation("keys")
   
   def put(key: String, values: Map[String, String]) = redis.hmset(key, values)

@@ -91,4 +91,23 @@ class ShardedRedisTest extends JUnitSuite with ShouldMatchersForJUnit with Redis
     
     results should be (("thing", "thing", "thing", "thing", "thing", "thing", "thing", "thing", "thing"))
   }
+  
+  @Test def testIncr {
+    redis.flushAll
+    redis2.flushAll
+    
+    shardedRedis.incr("test_value") should be (1l)
+    shardedRedis.get("test_value") should be (Some("1"))
+    shardedRedis.incrby("test_value", 2) should be (3l)
+    shardedRedis.get("test_value") should be (Some("3"))
+    
+    shardedRedis.syncAndReturn[Long, String, Long, String](pipeline => {
+      pipeline.incr("test_value")
+      pipeline.get("test_value")
+      pipeline.incrby("test_value", 5)
+      pipeline.get("test_value")
+    }) should be (4l, "4", 9l, "9")
+    
+    shardedRedis.get("test_value") should be (Some("9"))
+  }
 }

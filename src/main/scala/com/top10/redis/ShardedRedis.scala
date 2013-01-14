@@ -57,6 +57,10 @@ class ShardedRedis(pool: ShardedJedisPool) extends Redis {
   
   def hmset(key: String, details: Map[String, String]) = this.run(redis => {redis.hmset(key, details)})
   
+  def incrby(key: String, increment: Int) = this.run(redis => { redis.incrBy(key, increment) })
+  
+  def incr(key: String) = this.run(redis => { redis.incr(key) })
+  
   def put(key: String, values: Map[String, String]) = this.run(redis => {redis.hmset(key, values)})
   
   def smembers(key: String) = this.run(redis => {redis.smembers(key).toSet})

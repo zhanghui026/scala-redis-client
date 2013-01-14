@@ -37,6 +37,10 @@ trait Pipeline {
   
   def hmset(key: String, details: Map[String, String]): Response[java.lang.String]
   
+  def incrby(key: String, increment: Int): Response[java.lang.Long]
+  
+  def incr(key: String): Response[java.lang.Long]
+  
   def keys(pattern: String): Response[java.util.Set[java.lang.String]]
   
   def put(key: String, values: Map[String, String]): Response[java.lang.String]

@@ -43,6 +43,10 @@ trait Redis {
   
   def hmset(key: String, details: Map[String, String]): String
   
+  def incrby(key: String, increment: Int): Long
+  
+  def incr(key: String): Long
+  
   def keys(pattern: String): Set[String]
   
   def put(key: String, values: Map[String, String]): String
