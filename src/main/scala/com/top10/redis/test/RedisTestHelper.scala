@@ -128,7 +128,7 @@ trait RedisTestHelper {
       if(wait) p.waitFor()
       return Source.fromInputStream(p.getInputStream()).getLines().toList
     } catch {
-      case e => e.printStackTrace()
+      case e: Throwable => e.printStackTrace()
     }
     
     List[String]()
