@@ -6,21 +6,21 @@ import redis.clients.jedis.JedisPoolConfig
 import org.apache.commons.pool.impl.GenericObjectPool
 
 trait Redis {
-  
+
   def ping()
-  
+
   def del(key: String): Long
-  
+
   def get(key: String): Option[String]
-  
+
   def ttl(key: String): Long
-  
+
   def expire(key: String, ttl: Int): Long
-  
+
   def set(key: String, value: String): String
-  
+
   def setnx(key: String, value: String): Long
-  
+
   def exists(key: String): Boolean
 
   def mget(keys: Seq[String]): Seq[Option[String]]
@@ -28,89 +28,89 @@ trait Redis {
   def mset(keyvalues: Seq[(String, String)]): String
 
   def getset(key: String, field: String): Option[String]
-  
+
   def hget(key: String, field: String): Option[String]
-  
+
   def hexists(key: String, field: String): Boolean
 
   def hgetAll(key: String): Map[String, String]
-  
+
   def hgetMany(keys: Seq[String]): Seq[Map[String, String]]
-  
+
   def hincrBy(key: String, field: String, increment: Long): Long
-  
+
   def hset(key: String, field: String, value: String): Long
-  
+
   def hdel(key: String, field: String): Long
-  
+
   def hmget(key: String, fields: Seq[String]): Seq[Option[String]]
-  
+
   def hmset(key: String, details: Map[String, String]): String
-  
+
   def incrby(key: String, increment: Int): Long
-  
+
   def incr(key: String): Long
-  
+
   def keys(pattern: String): Set[String]
-  
+
   def put(key: String, values: Map[String, String]): String
-  
+
   def smembers(key: String): Set[String]
-  
+
   def scard(key: String): Long
-  
+
   def sadd(key: String, value: String): Long
-  
+
   def sismember(key: String, value: String): Boolean
-  
+
   def srem(key: String, value: String): Long
-  
+
   def lpop(key: String): Option[String]
-  
+
   def llength(key: String): Long
-  
+
   def lrange(key: String, start: Long, end: Long): Seq[String]
-  
+
   def ltrim(key: String, start: Long, end: Long): String
-  
+
   def lrem(key: String, value: String, number: Long): Long
-  
+
   def lset(key: String, index: Long, value: String): String
-  
+
   def rpush(key: String, value: String): Long
-  
+
   def lpush(key: String, value: String): Long
-  
+
   def zadd(key: String, score: Double, value: String): Long
-  
+
   def zrem(key: String, member: String): Long
-  
+
   def zrevrange(key: String, start: Int, end: Int): Seq[String]
-  
+
   def zrevrangeWithScores(key: String, start: Int, end: Int): Map[String, Double]
-  
+
   def zrange(key: String, start: Int, end: Int): Seq[String]
-  
+
   def zrangeWithScores(key: String, start: Int, end: Int): Map[String, Double]
-  
+
   def zrank(key: String, member: String): Option[Long]
-  
+
   def zrevrank(key: String, member: String): Option[Long]
-  
+
   def zcard(key: String): Long
-  
+
   def zscore(key: String, member: String): Option[Double]
-  
+
   def zincrBy(key: String, increment: Double, member: String): Double
-  
+
   def flushAll: String
-  
+
   def exec(task: (Pipeline) => Unit)
-  
+
   def syncAndReturnAll(task: (Pipeline) => Unit): Seq[AnyRef]
-  
+
   def syncAndReturnAllAs[A : Manifest](task: (Pipeline) => Unit): Seq[A] = syncAndReturnAll(task).map(value => RedisJavaMapping.as[A](value))
-  
+
   def syncAndReturn[A : Manifest, B : Manifest](task: (Pipeline) => Unit): Tuple2[A, B] = {
     val results = syncAndExpect(task, 2)
     (RedisJavaMapping.as[A](results(0)), RedisJavaMapping.as[B](results(1)))
@@ -143,13 +143,13 @@ trait Redis {
     val results = syncAndExpect(task, 9)
     (RedisJavaMapping.as[A](results(0)), RedisJavaMapping.as[B](results(1)), RedisJavaMapping.as[C](results(2)), RedisJavaMapping.as[D](results(3)), RedisJavaMapping.as[E](results(4)), RedisJavaMapping.as[F](results(5)), RedisJavaMapping.as[G](results(6)), RedisJavaMapping.as[H](results(7)), RedisJavaMapping.as[I](results(8)))
   }
-  
+
   protected def syncAndExpect(task: (Pipeline) => Unit, count: Int): Seq[AnyRef] = {
     val results: Seq[AnyRef] = syncAndReturnAll(task)
     assert(results.length == count, "syncAndReturnAll returned "+results.length+" results but you were expecting "+count)
     results
   }
-  
+
   def shutdown
 }
 
@@ -162,7 +162,7 @@ object Redis {
     config.setWhenExhaustedAction(GenericObjectPool.WHEN_EXHAUSTED_BLOCK)
     config
   }
-  
+
   def pool(config: JedisPoolConfig, host: String, port: Int, pwd: Option[String], timeout: Int): JedisPool = {
     pwd.map(password => new JedisPool(config, host, port, timeout, password))
        .getOrElse(new JedisPool(config, host, port, timeout))
