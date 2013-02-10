@@ -27,7 +27,11 @@ class SingleRedis(pool: JedisPool) extends Redis {
   def setnx(key: String, value: String) = this.run(redis => {redis.setnx(key, value)})
   
   def exists(key: String) = this.run(redis => {redis.exists(key)})
-  
+
+  def mget(keys: Seq[String]) = this.run(redis => redis.mget(keys:_*).map(Option.apply))
+
+  def mset(keyvalues: Seq[(String, String)]) = this.run(redis => redis.mset(keyvalues.flatMap { case (k,v) => Seq(k,v) }:_*))
+
   def getset(key: String, field: String) = this.run(redis => {Option(redis.getSet(key, field))})
   
   def hget(key: String, field: String) = this.run(redis => {Option(redis.hget(key, field))})

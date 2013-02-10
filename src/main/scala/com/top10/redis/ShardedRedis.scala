@@ -30,7 +30,11 @@ class ShardedRedis(pool: ShardedJedisPool) extends Redis {
   def setnx(key: String, value: String) = this.run(redis => {redis.setnx(key, value)})
   
   def exists(key: String) = this.run(redis => {redis.exists(key)})
-  
+
+  def mget(keys: Seq[String]) = throw UnspportedShardedOperation("mget")
+
+  def mset(keyvalues: Seq[(String, String)]) = throw UnspportedShardedOperation("mset")
+
   def getset(key: String, field: String) = this.run(redis => {Option(redis.getSet(key, field))})
   
   def hget(key: String, field: String) = this.run(redis => {Option(redis.hget(key, field))})
