@@ -22,7 +22,11 @@ trait Redis {
   def setnx(key: String, value: String): Long
   
   def exists(key: String): Boolean
-  
+
+  def mget(keys: Seq[String]): Seq[Option[String]]
+
+  def mset(keyvalues: Seq[(String, String)]): String
+
   def getset(key: String, field: String): Option[String]
   
   def hget(key: String, field: String): Option[String]

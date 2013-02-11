@@ -138,4 +138,16 @@ class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHel
     
     redis.get("test_value") should be (Some("9"))
   }
+
+  @Test def testMsetMget {
+    redis.flushAll
+
+    redis.mset(Seq(
+      ("test1", "a"),
+      ("test2", "b"),
+      ("test4", "d")
+    ))
+
+    redis.mget(Seq("test1", "test2", "test3", "test4")) should be (Seq(Some("a"), Some("b"), None, Some("d")))
+  }
 }
