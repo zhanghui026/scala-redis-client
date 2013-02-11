@@ -8,9 +8,9 @@ Currently this client wraps the Java [Jedis](https://github.com/xetorthio/jedis)
 Usage
 -----
 
-* Current 'stable' version: 1.6.0
-* Unstable version: 1.7.0-SNAPSHOT
-* Scala version: 2.9.1 (will cross build if requested)
+* Current 'stable' version: 1.10.0
+* Unstable version: 1.11.0-SNAPSHOT
+* Scala versions: 2.9.1, 2.9.2, 2.10.0
 
 Published to the Sonatype [release](https://oss.sonatype.org/content/repositories/releases/) and [snapshot](https://oss.sonatype.org/content/repositories/snapshots/) repositories.
 
