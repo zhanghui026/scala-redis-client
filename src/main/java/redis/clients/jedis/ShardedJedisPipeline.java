@@ -99,7 +99,7 @@ public class ShardedJedisPipeline extends Queable {
         Client c = getClient(key);
         c.setex(key, seconds, value);
         results.add(new FutureResult(c));
-        return getResponse(BuilderFactory.LONG);        
+        return getResponse(BuilderFactory.LONG);
     }
 
     public Response<Long> decrBy(String key, long integer) {
