@@ -7,8 +7,6 @@ import org.apache.commons.pool.impl.GenericObjectPool
 
 trait Redis {
 
-  def ping()
-
   def del(key: String): Long
 
   def get(key: String): Option[String]
@@ -22,10 +20,6 @@ trait Redis {
   def setnx(key: String, value: String): Long
 
   def exists(key: String): Boolean
-
-  def mget(keys: Seq[String]): Seq[Option[String]]
-
-  def mset(keyvalues: Seq[(String, String)]): String
 
   def getset(key: String, field: String): Option[String]
 
@@ -50,8 +44,6 @@ trait Redis {
   def incrby(key: String, increment: Int): Long
 
   def incr(key: String): Long
-
-  def keys(pattern: String): Set[String]
 
   def put(key: String, values: Map[String, String]): String
 
@@ -102,8 +94,6 @@ trait Redis {
   def zscore(key: String, member: String): Option[Double]
 
   def zincrBy(key: String, increment: Double, member: String): Double
-
-  def flushAll: String
 
   def exec(task: (Pipeline) => Unit)
 
@@ -169,4 +159,3 @@ object Redis {
   }
 }
 
-case class UnspportedShardedOperation(op: String) extends Exception("Sharded implementation doesn't support: "+op)

@@ -41,8 +41,6 @@ trait Pipeline {
   
   def incr(key: String): Response[java.lang.Long]
   
-  def keys(pattern: String): Response[java.util.Set[java.lang.String]]
-  
   def put(key: String, values: Map[String, String]): Response[java.lang.String]
   
   def smembers(key: String): Response[java.util.Set[java.lang.String]]

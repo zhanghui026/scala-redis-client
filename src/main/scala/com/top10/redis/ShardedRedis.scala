@@ -31,10 +31,6 @@ class ShardedRedis(pool: ShardedJedisPool) extends Redis {
 
   def exists(key: String) = this.run(redis => {redis.exists(key)})
 
-  def mget(keys: Seq[String]) = throw UnspportedShardedOperation("mget")
-
-  def mset(keyvalues: Seq[(String, String)]) = throw UnspportedShardedOperation("mset")
-
   def getset(key: String, field: String) = this.run(redis => {Option(redis.getSet(key, field))})
 
   def hget(key: String, field: String) = this.run(redis => {Option(redis.hget(key, field))})
@@ -163,12 +159,6 @@ class ShardedRedis(pool: ShardedJedisPool) extends Redis {
   }
 
   def shutdown = pool.destroy()
-
-  def flushAll: String = throw UnspportedShardedOperation("flushAll")
-
-  def keys(pattern: String) = throw UnspportedShardedOperation("keys")
-
-  def ping = throw UnspportedShardedOperation("ping")
 }
 
 case class Shard(host: String, port: Int, pwd: Option[String] = None, timeout: Int = 3600000) {
