@@ -22,7 +22,7 @@ class PipelineWrap (pipe: Pipeline){
   
   def getset(key: String, field: String): Response[String] = pipe.getset(key, field)
   
-  def hget(key: String, field: String): Response[String] = pipe.hget(key, field)
+  def hget(key: String, field: String): Response[Option[String]] = pipe.hget(key, field)
   
   def hexists(key: String, field: String): Response[Boolean] = pipe.hexists(key, field)
 
@@ -34,7 +34,7 @@ class PipelineWrap (pipe: Pipeline){
   
   def hdel(key: String, field: String): Response[Long] = pipe.hdel(key, field)
   
-  def hmget(key: String, fields: List[String]): Response[Seq[String]] = pipe.hmget(key, fields)
+  def hmget(key: String, fields: List[String]): Response[Seq[Option[String]]] = pipe.hmget(key, fields)
   
   def hmset(key: String, details: Map[String, String]): Response[String] = pipe.hmset(key, details)
 
@@ -54,7 +54,7 @@ class PipelineWrap (pipe: Pipeline){
   
   def srem(key: String, value: String): Response[Long] = pipe.srem(key, value)
   
-  def lpop(key: String): Response[String] = pipe.lpop(key)
+  def lpop(key: String): Response[Option[String]] = pipe.lpop(key)
   
   def sort(key: String, sp: SortingParams): Response[Seq[String]] = pipe.sort(key, sp)
   
@@ -82,13 +82,13 @@ class PipelineWrap (pipe: Pipeline){
 
   def zrangeWithScores(key: String, start: Int, end: Int): ScalaResponse[Map[String, Double]]= pipe.zrevrangeWithScores(key, start, end)
   
-  def zrank(key: String, member: String): Response[Long] = pipe.zrank(key, member)
+  def zrank(key: String, member: String): Response[Option[Long]] = pipe.zrank(key, member)
   
-  def zrevrank(key: String, member: String): Response[Long] = pipe.zrevrank(key, member)
+  def zrevrank(key: String, member: String): Response[Option[Long]] = pipe.zrevrank(key, member)
   
   def zcard(key: String): Response[Long] = pipe.zcard(key)
   
-  def zscore(key: String, member: String): Response[Double] = pipe.zscore(key, member)
+  def zscore(key: String, member: String): Response[Option[Double]] = pipe.zscore(key, member)
   
   def zincrBy(key: String, increment: Double, member: String): Response[Double] = pipe.zincrBy(key, increment, member)
 
