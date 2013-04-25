@@ -103,6 +103,8 @@ trait Redis {
 
   def syncAndReturnResponses[T](task: (PipelineWrap) => T): T
 
+  def syncAndReturn1[A](task:(PipelineWrap) => (ScalaResponse[A])): A = syncAndReturn(task)
+
   def syncAndReturn[A](task:(PipelineWrap) => (ScalaResponse[A])): A = {
     val (a) = syncAndReturnResponses(task)
     a.get
