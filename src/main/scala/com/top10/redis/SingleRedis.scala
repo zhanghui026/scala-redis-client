@@ -172,5 +172,14 @@ class SingleRedis(pool: JedisPool) extends Redis {
     })
   }
 
+  def syncAndReturnResponses[T](task: (PipelineWrap) => T): T = {
+    this.run(redis => {
+      val pipeline = redis.pipelined()
+      val responses = task(new PipelineWrap(new SinglePipeline(pipeline)))
+      pipeline.syncAndReturnAll()
+      responses
+    })
+  }
+
   def shutdown = pool.destroy()
 }

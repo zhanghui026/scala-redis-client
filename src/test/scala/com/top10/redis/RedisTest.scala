@@ -10,6 +10,7 @@ import redis.clients.jedis.JedisPoolConfig
 import redis.clients.jedis.Protocol
 import com.top10.redis.test.RedisTestHelper
 import redis.clients.jedis.Transaction
+import scala.collection.immutable.SortedSet
 
 class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHelper {
 
@@ -91,6 +92,67 @@ class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHel
     results(3).asInstanceOf[java.util.LinkedHashSet[_root_.redis.clients.jedis.Tuple]].toList.map(t => (t.getElement(), t.getScore())) should be (List(("2", 2.0), ("1", 1.0), ("0", 0.0)))
   }
 
+  @Test def testIncrWithPipeline {
+    redis.flushAll
+
+    redis.incr("test_value") should be (1l)
+    redis.get("test_value") should be (Some("1"))
+    redis.incrby("test_value", 2) should be (3l)
+    redis.get("test_value") should be (Some("3"))
+
+    val tupleResponse = redis.syncAndReturn4(pipeline => {
+      (pipeline.incr("test_value"), pipeline.get("test_value"), pipeline.incrby("test_value", 5), pipeline.get("test_value"))
+    })
+
+    tupleResponse should be (4l, Some("4"), 9l, Some("9"))
+
+    redis.get("test_value") should be (Some("9"))
+  }
+
+  @Test def testOtherWithPipeline {
+    redis.flushAll
+
+    redis.incr("test_value") should be (1l)
+    redis.get("test_value") should be (Some("1"))
+    redis.incrby("test_value", 2) should be (3l)
+    redis.get("test_value") should be (Some("3"))
+
+    val tupleResponse: (Boolean, Option[String], Boolean, Option[String], Option[String]) = redis.syncAndReturn5( pipeline =>
+      (pipeline.exists("test_value"), pipeline.get("test_value"), pipeline.exists("test_value_none"), pipeline.get("test_value_none"), pipeline.get("test_value"))
+    )
+
+    tupleResponse should be (true, Some("3"), false, None, Some("3"))
+
+    redis.get("test_value") should be (Some("3"))
+  }
+
+  @Test def testSyncAndReturnAll() {
+    redis.zadd("zrangeTest", 0, "0")
+    redis.zadd("zrangeTest", 1, "1")
+    redis.zadd("zrangeTest", 2, "2")
+
+    redis.zrange("zrangeTest", 0, -1) should be (List("0", "1", "2"))
+    redis.zrangeWithScores("zrangeTest", 0, -1) should be (Map("0" -> 0.0, "1" -> 1.0, "2" -> 2.0))
+
+    redis.zrevrange("zrangeTest", 0, -1) should be (List("2", "1", "0"))
+    redis.zrevrangeWithScores("zrangeTest", 0, -1) should be (Map("2"-> 2.0, "1" -> 1.0, "0" -> 0.0))
+
+    val (range, rangeWithScore, revrange, revrangeWithScore) = redis.syncAndReturn[Set[String], Map[String, Double], Set[String], Map[String, Double]](pipeline => {
+      val range = pipeline.zrange("zrangeTest", 0, -1)
+      val rangeWithScore = pipeline.zrangeWithScores("zrangeTest", 0, -1)
+
+      val revrange = pipeline.zrevrange("zrangeTest", 0, -1)
+      val revrangeWithScore = pipeline.zrevrangeWithScores("zrangeTest", 0, -1)
+
+      (range, rangeWithScore, revrange, revrangeWithScore)
+    })
+
+    range should be (SortedSet("0", "1", "2"))
+    rangeWithScore should be (Map(("0", 0.0), ("1", 1.0), ("2", 2.0)))
+    revrange should be (SortedSet("0", "1", "2"))
+    revrangeWithScore should be (Map(("2", 2.0), ("1", 1.0), ("0", 0.0)))
+  }
+
   @Test def testZRangeWithScoresSync {
     redis.zadd("zrangeTest", 0, "0")
     redis.zadd("zrangeTest", 1, "1")
@@ -102,23 +164,23 @@ class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHel
     redis.zrevrange("zrangeTest", 0, -1) should be (List("2", "1", "0"))
     redis.zrevrangeWithScores("zrangeTest", 0, -1) should be (Map("2" -> 2.0, "1" -> 1.0, "0" -> 0.0))
 
-    val results = redis.syncAndReturn[Seq[String], Map[String, Double]](pipeline => {
-      pipeline.zrange("zrangeTest", 0, -1)
-      pipeline.zrangeWithScores("zrangeTest", 0, -1)
-    })
+    val (range, withScore) = redis.syncAndReturn[Set[String], Map[String, Double]](pipeline =>
+      (pipeline.zrange("zrangeTest", 0, -1),
+      pipeline.zrangeWithScores("zrangeTest", 0, -1))
+    )
 
-    results._1 should be (Seq("0", "1", "2"))
-    results._2 should be (Map("0" -> 0.0, "1" -> 1.0, "2" -> 2.0))
+    range should be (Set("0", "1", "2"))
+    withScore should be (Map("0" -> 0.0, "1" -> 1.0, "2" -> 2.0))
   }
 
   @Test def get9results {
     redis.set("some", "thing")
 
-    val results = redis.syncAndReturn[String, String, String, String, String, String, String, String, String](pipeline => {
-      (0 until 9).foreach(i => pipeline.get("some"))
+    val results = redis.syncAndReturn[Option[String], Option[String], Option[String], Option[String], Option[String], Option[String], Option[String], Option[String], Option[String]](pipeline => {
+      (pipeline.get("some"), pipeline.get("some"), pipeline.get("some"), pipeline.get("some"), pipeline.get("some"), pipeline.get("some"), pipeline.get("some"), pipeline.get("some"), pipeline.get("some"))
     })
 
-    results should be (("thing", "thing", "thing", "thing", "thing", "thing", "thing", "thing", "thing"))
+    results should be ((Some("thing"), Some("thing"), Some("thing"), Some("thing"), Some("thing"), Some("thing"), Some("thing"), Some("thing"), Some("thing")))
   }
 
   @Test def testIncr {
@@ -129,12 +191,14 @@ class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHel
     redis.incrby("test_value", 2) should be (3l)
     redis.get("test_value") should be (Some("3"))
 
-    redis.syncAndReturn[Long, String, Long, String](pipeline => {
-      pipeline.incr("test_value")
+    val responses = redis.syncAndReturn[Long, Option[String], Long, Option[String]](pipeline => (
+      pipeline.incr("test_value"),
+      pipeline.get("test_value"),
+      pipeline.incrby("test_value", 5),
       pipeline.get("test_value")
-      pipeline.incrby("test_value", 5)
-      pipeline.get("test_value")
-    }) should be (4l, "4", 9l, "9")
+    ))
+
+    responses should be (4l, Some("4"), 9l, Some("9"))
 
     redis.get("test_value") should be (Some("9"))
   }
