@@ -17,3 +17,7 @@ project/plugins/project/
 .classpath
 
 *.swp
+
+.idea
+*.DS_Store
+.idea_modules

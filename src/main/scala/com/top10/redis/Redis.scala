@@ -101,43 +101,66 @@ trait Redis {
 
   def syncAndReturnAllAs[A : Manifest](task: (Pipeline) => Unit): Seq[A] = syncAndReturnAll(task).map(value => RedisJavaMapping.as[A](value))
 
-  def syncAndReturn[A : Manifest, B : Manifest](task: (Pipeline) => Unit): Tuple2[A, B] = {
-    val results = syncAndExpect(task, 2)
-    (RedisJavaMapping.as[A](results(0)), RedisJavaMapping.as[B](results(1)))
+  def syncAndReturnResponses[T](task: (PipelineWrap) => T): T
+
+  def syncAndReturn[A](task:(PipelineWrap) => (ScalaResponse[A])): A = {
+    val (a) = syncAndReturnResponses(task)
+    a.get
   }
-  def syncAndReturn[A : Manifest, B : Manifest, C : Manifest](task: (Pipeline) => Unit): Tuple3[A, B, C] = {
-    val results = syncAndExpect(task, 3)
-    (RedisJavaMapping.as[A](results(0)), RedisJavaMapping.as[B](results(1)), RedisJavaMapping.as[C](results(2)))
-  }
-  def syncAndReturn[A : Manifest, B : Manifest, C : Manifest, D : Manifest](task: (Pipeline) => Unit): Tuple4[A, B, C, D] = {
-    val results = syncAndExpect(task, 4)
-    (RedisJavaMapping.as[A](results(0)), RedisJavaMapping.as[B](results(1)), RedisJavaMapping.as[C](results(2)), RedisJavaMapping.as[D](results(3)))
-  }
-  def syncAndReturn[A : Manifest, B : Manifest, C : Manifest, D : Manifest, E : Manifest](task: (Pipeline) => Unit): Tuple5[A, B, C, D, E] = {
-    val results = syncAndExpect(task, 5)
-    (RedisJavaMapping.as[A](results(0)), RedisJavaMapping.as[B](results(1)), RedisJavaMapping.as[C](results(2)), RedisJavaMapping.as[D](results(3)), RedisJavaMapping.as[E](results(4)))
-  }
-  def syncAndReturn[A : Manifest, B : Manifest, C : Manifest, D : Manifest, E : Manifest, F : Manifest](task: (Pipeline) => Unit): Tuple6[A, B, C, D, E, F] = {
-    val results = syncAndExpect(task, 6)
-    (RedisJavaMapping.as[A](results(0)), RedisJavaMapping.as[B](results(1)), RedisJavaMapping.as[C](results(2)), RedisJavaMapping.as[D](results(3)), RedisJavaMapping.as[E](results(4)), RedisJavaMapping.as[F](results(5)))
-  }
-  def syncAndReturn[A : Manifest, B : Manifest, C : Manifest, D : Manifest, E : Manifest, F : Manifest, G : Manifest](task: (Pipeline) => Unit): Tuple7[A, B, C, D, E, F, G] = {
-    val results = syncAndExpect(task, 7)
-    (RedisJavaMapping.as[A](results(0)), RedisJavaMapping.as[B](results(1)), RedisJavaMapping.as[C](results(2)), RedisJavaMapping.as[D](results(3)), RedisJavaMapping.as[E](results(4)), RedisJavaMapping.as[F](results(5)), RedisJavaMapping.as[G](results(6)))
-  }
-  def syncAndReturn[A : Manifest, B : Manifest, C : Manifest, D : Manifest, E : Manifest, F : Manifest, G : Manifest, H : Manifest](task: (Pipeline) => Unit): Tuple8[A, B, C, D, E, F, G, H] = {
-    val results = syncAndExpect(task, 8)
-    (RedisJavaMapping.as[A](results(0)), RedisJavaMapping.as[B](results(1)), RedisJavaMapping.as[C](results(2)), RedisJavaMapping.as[D](results(3)), RedisJavaMapping.as[E](results(4)), RedisJavaMapping.as[F](results(5)), RedisJavaMapping.as[G](results(6)), RedisJavaMapping.as[H](results(7)))
-  }
-  def syncAndReturn[A : Manifest, B : Manifest, C : Manifest, D : Manifest, E : Manifest, F : Manifest, G : Manifest, H : Manifest, I : Manifest](task: (Pipeline) => Unit): Tuple9[A, B, C, D, E, F, G, H, I] = {
-    val results = syncAndExpect(task, 9)
-    (RedisJavaMapping.as[A](results(0)), RedisJavaMapping.as[B](results(1)), RedisJavaMapping.as[C](results(2)), RedisJavaMapping.as[D](results(3)), RedisJavaMapping.as[E](results(4)), RedisJavaMapping.as[F](results(5)), RedisJavaMapping.as[G](results(6)), RedisJavaMapping.as[H](results(7)), RedisJavaMapping.as[I](results(8)))
+  def syncAndReturn2[A, B](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B])): (A, B) = syncAndReturn(task)
+
+  def syncAndReturn[A, B](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B])): (A, B) = {
+    val (a, b) = syncAndReturnResponses(task)
+    (a.get, b.get)
   }
 
-  protected def syncAndExpect(task: (Pipeline) => Unit, count: Int): Seq[AnyRef] = {
-    val results: Seq[AnyRef] = syncAndReturnAll(task)
-    assert(results.length == count, "syncAndReturnAll returned "+results.length+" results but you were expecting "+count)
-    results
+  def syncAndReturn3[A, B, C](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B], ScalaResponse[C])): (A, B, C) = syncAndReturn(task)
+
+  def syncAndReturn[A, B, C](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B], ScalaResponse[C])): (A, B, C) = {
+    val (a, b, c) = syncAndReturnResponses(task)
+    (a.get, b.get, c.get)
+  }
+
+  def syncAndReturn4[A, B, C, D](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B], ScalaResponse[C], ScalaResponse[D])): (A, B, C, D) = syncAndReturn(task)
+
+  def syncAndReturn[A, B, C, D](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B], ScalaResponse[C], ScalaResponse[D])): (A, B, C, D) = {
+    val (a, b, c, d) = syncAndReturnResponses(task)
+    (a.get, b.get, c.get, d.get)
+  }
+
+  def syncAndReturn5[A, B, C, D, E](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B], ScalaResponse[C], ScalaResponse[D], ScalaResponse[E])): (A, B, C, D, E) = syncAndReturn(task)
+
+  def syncAndReturn[A, B, C, D, E](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B], ScalaResponse[C], ScalaResponse[D], ScalaResponse[E])): (A, B, C, D, E) = {
+    val (a, b, c, d, e) = syncAndReturnResponses(task)
+    (a.get, b.get, c.get, d.get, e.get)
+  }
+
+  def syncAndReturn6[A, B, C, D, E, F](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B], ScalaResponse[C], ScalaResponse[D], ScalaResponse[E], ScalaResponse[F])): (A, B, C, D, E, F) = syncAndReturn(task)
+
+  def syncAndReturn[A, B, C, D, E, F](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B], ScalaResponse[C], ScalaResponse[D], ScalaResponse[E], ScalaResponse[F])): (A, B, C, D, E, F) = {
+    val (a, b, c, d, e, f) = syncAndReturnResponses(task)
+    (a.get, b.get, c.get, d.get, e.get, f.get)
+  }
+
+  def syncAndReturn7[A, B, C, D, E, F, G](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B], ScalaResponse[C], ScalaResponse[D], ScalaResponse[E], ScalaResponse[F], ScalaResponse[G])): (A, B, C, D, E, F, G) = syncAndReturn(task)
+
+  def syncAndReturn[A, B, C, D, E, F, G](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B], ScalaResponse[C], ScalaResponse[D], ScalaResponse[E], ScalaResponse[F], ScalaResponse[G])): (A, B, C, D, E, F, G) = {
+    val (a, b, c, d, e, f, g) = syncAndReturnResponses(task)
+    (a.get, b.get, c.get, d.get, e.get, f.get, g.get)
+  }
+
+  def syncAndReturn8[A, B, C, D, E, F, G, H](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B], ScalaResponse[C], ScalaResponse[D], ScalaResponse[E], ScalaResponse[F], ScalaResponse[G], ScalaResponse[H])): (A, B, C, D, E, F, G, H) = syncAndReturn(task)
+
+  def syncAndReturn[A, B, C, D, E, F, G, H](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B], ScalaResponse[C], ScalaResponse[D], ScalaResponse[E], ScalaResponse[F], ScalaResponse[G], ScalaResponse[H])): (A, B, C, D, E, F, G, H) = {
+    val (a, b, c, d, e, f, g, h) = syncAndReturnResponses(task)
+    (a.get, b.get, c.get, d.get, e.get, f.get, g.get, h.get)
+  }
+
+  def syncAndReturn9[A, B, C, D, E, F, G, H, I](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B], ScalaResponse[C], ScalaResponse[D], ScalaResponse[E], ScalaResponse[F], ScalaResponse[G], ScalaResponse[H], ScalaResponse[I])): (A, B, C, D, E, F, G, H, I) = syncAndReturn(task)
+
+  def syncAndReturn[A, B, C, D, E, F, G, H, I](task:(PipelineWrap) => (ScalaResponse[A], ScalaResponse[B], ScalaResponse[C], ScalaResponse[D], ScalaResponse[E], ScalaResponse[F], ScalaResponse[G], ScalaResponse[H], ScalaResponse[I])): (A, B, C, D, E, F, G, H, I) = {
+    val (a, b, c, d, e, f, g, h, i) = syncAndReturnResponses(task)
+    (a.get, b.get, c.get, d.get, e.get, f.get, g.get, h.get, i.get)
   }
 
   def shutdown

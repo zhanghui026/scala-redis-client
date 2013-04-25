@@ -5,3 +5,5 @@ resolvers += Resolver.url("sbt-plugin-releases", new URL("http://scalasbt.artifa
 addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.7")
 
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.6")
+
+addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.4.0")

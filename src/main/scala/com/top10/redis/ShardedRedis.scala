@@ -152,6 +152,15 @@ class ShardedRedis(pool: ShardedJedisPool) extends Redis {
     })
   }
 
+  def syncAndReturnResponses[T](task: (PipelineWrap) => T): T = {
+    this.run(redis => {
+      val pipeline = shardedJedisPipeline(redis)
+      val responses = task(new PipelineWrap(new ShardedPipeline(pipeline)))
+      pipeline.syncAndReturnAll()
+      responses
+    })
+  }
+
   protected def shardedJedisPipeline(redis: ShardedJedis): ShardedJedisPipeline = {
     val pipeline = new ShardedJedisPipeline()
     pipeline.setShardedJedis(redis)

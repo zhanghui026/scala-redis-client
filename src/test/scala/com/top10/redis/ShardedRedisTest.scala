@@ -85,11 +85,11 @@ class ShardedRedisTest extends JUnitSuite with ShouldMatchersForJUnit with Redis
   @Test def get9results {
     shardedRedis.set("some", "thing")
     
-    val results = shardedRedis.syncAndReturn[String, String, String, String, String, String, String, String, String](pipeline => {
-      (0 until 9).foreach(i => pipeline.get("some"))
+    val results = shardedRedis.syncAndReturn[Option[String], Option[String], Option[String], Option[String], Option[String], Option[String], Option[String], Option[String], Option[String]](pipeline => {
+      (pipeline.get("some"), pipeline.get("some"), pipeline.get("some"), pipeline.get("some"), pipeline.get("some"), pipeline.get("some"), pipeline.get("some"), pipeline.get("some"), pipeline.get("some"))
     })
-    
-    results should be (("thing", "thing", "thing", "thing", "thing", "thing", "thing", "thing", "thing"))
+
+    results should be ((Some("thing"), Some("thing"), Some("thing"), Some("thing"), Some("thing"), Some("thing"), Some("thing"), Some("thing"), Some("thing")))
   }
   
   @Test def testIncr {
@@ -101,12 +101,12 @@ class ShardedRedisTest extends JUnitSuite with ShouldMatchersForJUnit with Redis
     shardedRedis.incrby("test_value", 2) should be (3l)
     shardedRedis.get("test_value") should be (Some("3"))
     
-    shardedRedis.syncAndReturn[Long, String, Long, String](pipeline => {
-      pipeline.incr("test_value")
+    shardedRedis.syncAndReturn[Long, Option[String], Long, Option[String]](pipeline => (
+      pipeline.incr("test_value"),
+      pipeline.get("test_value"),
+      pipeline.incrby("test_value", 5),
       pipeline.get("test_value")
-      pipeline.incrby("test_value", 5)
-      pipeline.get("test_value")
-    }) should be (4l, "4", 9l, "9")
+    )) should be (4l, Some("4"), 9l, Some("9"))
     
     shardedRedis.get("test_value") should be (Some("9"))
   }
