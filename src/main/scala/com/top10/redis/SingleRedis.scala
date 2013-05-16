@@ -3,6 +3,7 @@ package com.top10.redis
 import redis.clients.jedis.JedisPool
 import scala.collection.JavaConversions._
 import redis.clients.jedis.Jedis
+import redis.clients.jedis.BinaryJedis
 import redis.clients.jedis.Transaction
 import redis.clients.jedis.JedisPoolConfig
 import org.apache.commons.pool.impl.GenericObjectPool
@@ -21,6 +22,14 @@ class SingleRedis(pool: JedisPool) extends Redis {
   def ttl(key: String) = this.run(redis => {redis.ttl(key)})
 
   def expire(key: String, ttl: Int) = this.run(redis => {redis.expire(key, ttl)})
+
+  def eval(script: String, keyCount: Int, args: String*): Any = this.run(redis => {redis.eval(script, keyCount, args: _*)})
+
+  def eval(script: String): Any = eval(script, 0)
+
+  def evalsha(script: String, keyCount: Int, args: String*): Any = this.run(redis => {redis.evalsha(script, keyCount, args: _*)})
+
+  def evalsha(hash: String): Any = evalsha(hash, 0)
 
   def set(key: String, value: String) = this.run(redis => {redis.set(key, value)})
 
@@ -77,6 +86,8 @@ class SingleRedis(pool: JedisPool) extends Redis {
   })
 
   def sismember(key: String, value: String) = this.run(redis => {redis.sismember(key, value)})
+
+  def scriptLoad(script: String) = this.run(redis => {redis.scriptLoad(script)})
 
   def lpop(key: String) = this.run(redis => {Option(redis.lpop(key))})
 
@@ -143,7 +154,7 @@ class SingleRedis(pool: JedisPool) extends Redis {
     try {
       task(redis)
     } finally {
-      pool.returnResource(redis)
+      pool.returnResource(redis.asInstanceOf[BinaryJedis]) // Resolved an issue upgrading to Jedis 2.1.0
     }
   }
 

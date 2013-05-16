@@ -22,7 +22,7 @@ releaseSettings
 
 libraryDependencies ++= Seq(
   "org.scala-tools.time" % "time_2.9.1" % "0.5",
-  "redis.clients" % "jedis" % "2.0.0",
+  "redis.clients" % "jedis" % "2.1.0",
   "org.scalatest" %% "scalatest" % "1.9.1" % "test",
   "junit" % "junit" % "4.8.2" % "test",
   "org.mockito" % "mockito-core" % "1.8.5" % "test"
