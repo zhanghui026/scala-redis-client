@@ -74,6 +74,10 @@ class PipelineWrap (pipe: Pipeline){
   
   def zrem(key: String, member: String): Response[Long] = pipe.zrem(key, member)
 
+  def zremrangeByScore(key: String, start: Double, end: Double): Response[java.lang.Long] = pipe.zremrangeByScore(key, start, end)
+
+  def zremrangeByRank(key: String, start: Int, end: Int): Response[java.lang.Long] = pipe.zremrangeByRank(key, start, end)
+
   def zrevrange(key: String, start: Int, end: Int): ScalaResponse[Set[String]] = pipe.zrevrange(key, start, end)
 
   def zrevrangeWithScores(key: String, start: Int, end: Int): ScalaResponse[Map[String, Double]]= pipe.zrevrangeWithScores(key, start, end)

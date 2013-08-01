@@ -126,6 +126,10 @@ class SingleRedis(pool: JedisPool) extends Redis {
     }
   })
 
+  def zremrangeByScore(key: String, start: Double, end: Double) = this.run(redis => {redis.zremrangeByScore(key, start, end)})
+
+  def zremrangeByRank(key: String, start: Int, end: Int) = this.run(redis => {redis.zremrangeByRank(key, start, end)})
+
   def zrevrank(key: String, member: String) = this.run(redis => {
     redis.zrevrank(key, member) match {
       case rank: java.lang.Long => Some(rank)
