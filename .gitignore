@@ -21,3 +21,8 @@ project/plugins/project/
 .idea
 *.DS_Store
 .idea_modules
+
+.ensime
+.ensime_lucene/
+
+*~
