@@ -77,6 +77,10 @@ trait Redis {
 
   def zrem(key: String, member: String): Long
 
+  def zremrangeByScore(key: String, start: Double, end: Double): Long
+
+  def zremrangeByRank(key: String, start: Int, end: Int): Long
+
   def zrevrange(key: String, start: Int, end: Int): Seq[String]
 
   def zrevrangeWithScores(key: String, start: Int, end: Int): Map[String, Double]

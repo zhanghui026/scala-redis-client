@@ -72,6 +72,10 @@ trait Pipeline {
   def zadd(key: String, score: Double, value: String): Response[java.lang.Long]
   
   def zrem(key: String, member: String): Response[java.lang.Long]
+
+  def zremrangeByScore(key: String, start: Double, end: Double): Response[java.lang.Long]
+
+  def zremrangeByRank(key: String, start: Int, end: Int): Response[java.lang.Long]
   
   def zrevrange(key: String, start: Int, end: Int): Response[java.util.Set[java.lang.String]]
   

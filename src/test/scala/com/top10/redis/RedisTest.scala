@@ -214,4 +214,32 @@ class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHel
 
     redis.mget(Seq("test1", "test2", "test3", "test4")) should be (Seq(Some("a"), Some("b"), None, Some("d")))
   }
+
+  @Test def testZremrangeByRank {
+    redis.flushAll
+
+    val items = Seq(("a", 1.0), ("b", 2.0), ("c", 3.0), ("d", 4.0))
+
+    redis.exec(pipeline => items foreach {
+      case (key, score) => pipeline.zadd("test_z", score, key)
+    })
+
+    redis.zremrangeByRank("test_z", 0, 1) should be (2)
+
+    val result = redis.zrange("test_z", 0, 4) should be (Seq("c", "d"))
+  }
+
+  @Test def testZremrangeByScore {
+    redis.flushAll
+
+    val items = Seq(("a", 1.0), ("b", 2.0), ("c", 3.0), ("d", 4.0))
+
+    redis.exec(pipeline => items foreach {
+      case (key, score) => pipeline.zadd("test_z", score, key)
+    })
+
+    redis.zremrangeByScore("test_z", 3.0, 4.0) should be (2)
+
+    val result = redis.zrange("test_z", 0, 4) should be (Seq("a", "b"))
+  }
 }

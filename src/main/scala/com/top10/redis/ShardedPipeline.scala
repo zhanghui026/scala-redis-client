@@ -72,6 +72,10 @@ class ShardedPipeline(redis: _root_.redis.clients.jedis.ShardedJedisPipeline) ex
   def zadd(key: String, score: Double, value: String) = redis.zadd(key, score, value)
   
   def zrem(key: String, member: String) = redis.zrem(key, member)
+
+  def zremrangeByScore(key: String, start: Double, end: Double) = redis.zremrangeByScore(key, start, end)
+
+  def zremrangeByRank(key: String, start: Int, end: Int) = redis.zremrangeByRank(key, start, end)
   
   def zrevrange(key: String, start: Int, end: Int) = redis.zrevrange(key, start, end)
   
