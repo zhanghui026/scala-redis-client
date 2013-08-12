@@ -63,10 +63,10 @@ class ShardedRedisTest extends JUnitSuite with ShouldMatchersForJUnit with Redis
     shardedRedis.zadd("zrangeTest", 2, "2")
     
     shardedRedis.zrange("zrangeTest", 0, -1) should be (List("0", "1", "2"))
-    shardedRedis.zrangeWithScores("zrangeTest", 0, -1) should be (Map("0" -> 0.0, "1" -> 1.0, "2" -> 2.0))
+    shardedRedis.zrangeWithScores("zrangeTest", 0, -1) should be (Seq("0" -> 0.0, "1" -> 1.0, "2" -> 2.0))
     
     shardedRedis.zrevrange("zrangeTest", 0, -1) should be (List("2", "1", "0"))
-    shardedRedis.zrevrangeWithScores("zrangeTest", 0, -1) should be (Map("2" -> 2.0, "1" -> 1.0, "0" -> 0.0))
+    shardedRedis.zrevrangeWithScores("zrangeTest", 0, -1) should be (Seq("2" -> 2.0, "1" -> 1.0, "0" -> 0.0))
     
     val results = shardedRedis.syncAndReturnAll(pipeline => {
       pipeline.zrange("zrangeTest", 0, -1)

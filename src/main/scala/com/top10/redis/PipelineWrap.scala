@@ -3,6 +3,9 @@ package com.top10.redis
 import redis.clients.jedis.SortingParams
 import com.top10.redis.{ScalaResponse => Response}
 import com.top10.redis.ImplicitJedisMappings._
+import scala.collection.JavaConversions.iterableAsScalaIterable
+import redis.clients.jedis.{Tuple => JedisTuple}
+import PipelineWrap._
 
 class PipelineWrap (pipe: Pipeline){
 
@@ -74,13 +77,21 @@ class PipelineWrap (pipe: Pipeline){
   
   def zrem(key: String, member: String): Response[Long] = pipe.zrem(key, member)
 
-  def zrevrange(key: String, start: Int, end: Int): ScalaResponse[Set[String]] = pipe.zrevrange(key, start, end)
+  def zrevrange(key: String, start: Int, end: Int): ScalaResponse[Seq[String]] = {
+    ScalaResponse.wrapResponse(pipe.zrevrange(key, start, end), setToScalaSeq)
+  }
 
-  def zrevrangeWithScores(key: String, start: Int, end: Int): ScalaResponse[Map[String, Double]]= pipe.zrevrangeWithScores(key, start, end)
+  def zrevrangeWithScores(key: String, start: Int, end: Int): ScalaResponse[Seq[(String, Double)]] = {
+    ScalaResponse.wrapResponse(pipe.zrevrangeWithScores(key, start, end), tupleSetToScalaSeq)
+  }
 
-  def zrange(key: String, start: Int, end: Int): ScalaResponse[Set[String]] = pipe.zrange(key, start, end)
+  def zrange(key: String, start: Int, end: Int): ScalaResponse[Seq[String]] = {
+    ScalaResponse.wrapResponse(pipe.zrange(key, start, end), setToScalaSeq)
+  }
 
-  def zrangeWithScores(key: String, start: Int, end: Int): ScalaResponse[Map[String, Double]]= pipe.zrevrangeWithScores(key, start, end)
+  def zrangeWithScores(key: String, start: Int, end: Int): ScalaResponse[Seq[(String, Double)]] = {
+    ScalaResponse.wrapResponse(pipe.zrangeWithScores(key, start, end), tupleSetToScalaSeq)
+  }
   
   def zrank(key: String, member: String): Response[Option[Long]] = pipe.zrank(key, member)
   
@@ -91,5 +102,11 @@ class PipelineWrap (pipe: Pipeline){
   def zscore(key: String, member: String): Response[Option[Double]] = pipe.zscore(key, member)
   
   def zincrBy(key: String, increment: Double, member: String): Response[Double] = pipe.zincrBy(key, increment, member)
+ 
+}
 
+object PipelineWrap {
+  def setToScalaSeq(s: java.util.Set[String]): Seq[String] = s.toSeq
+
+  def tupleSetToScalaSeq(s: java.util.Set[JedisTuple])(implicit f: JedisTuple => (String, Double)): Seq[(String, Double)] = s.toSeq.map(j => f(j))
 }
