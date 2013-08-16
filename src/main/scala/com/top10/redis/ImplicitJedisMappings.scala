@@ -23,8 +23,7 @@ object ImplicitJedisMappings {
   implicit def jedisToScalaResponse[ST, JT](response: JedisResponse[JT])(implicit converter: JT => ST): ScalaResponse[ST] =
     ScalaResponse.wrapResponse[ST, JT](response, converter)
 
-  implicit def jedisTupleToMap(s: java.util.Set[JedisTuple])(implicit f: JavaString => String): Map[String, Double] =
-    s.asScala.map{t:JedisTuple => (f(t.getElement) -> t.getScore)}.toMap
+  implicit def jedisTupleToScalaTuple(j: JedisTuple)(implicit f: JavaString => String): (String, Double) = (f(j.getElement()), j.getScore())
 
   implicit def setToScalaSet[T](s: java.util.Set[T]): Set[T] =
     s.asScala.toSet
