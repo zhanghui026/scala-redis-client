@@ -242,4 +242,23 @@ class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHel
 
     val result = redis.zrange("test_z", 0, 4) should be (Seq("a", "b"))
   }
+
+   @Test def testZUnionStore {
+    redis.flushAll
+
+    val items = Seq(("a", 1.0), ("c", 3.0))
+    val items2 = Seq(("b", 2.0), ("d", 4.0))
+
+    redis.exec(pipeline => items foreach {
+      case (key, score) => pipeline.zadd("test_z_1", score, key)
+    })
+
+    redis.exec(pipeline => items2 foreach {
+      case (key, score) => pipeline.zadd("test_z_2", score, key)
+    })
+
+    redis.zunionStore("test_z_3", Seq("test_z_1", "test_z_2"))
+
+    redis.zrange("test_z_3", 0, -1) should be (Seq("a", "b", "c", "d"))
+  }
 }

@@ -150,6 +150,8 @@ class SingleRedis(pool: JedisPool) extends Redis {
 
   def zinterStore(key: String, strings: Seq[String]) = this.run(redis => {redis.zinterstore(key, strings: _*)})
 
+  def zunionStore(key: String, strings: Seq[String]) = this.run(redis => {redis.zunionstore(key, strings: _*)})
+
   def flushAll = this.run(redis => {redis.flushAll()})
 
   def run[T](task:(Jedis) => T): T = {
@@ -177,7 +179,27 @@ class SingleRedis(pool: JedisPool) extends Redis {
     })
   }
 
+    def execSingle(task:(SinglePipeline) => Unit) {
+    this.run(redis => {
+      val pipeline = redis.pipelined()
+
+      task(new SinglePipeline(pipeline))
+
+      pipeline.sync()
+    })
+  }
+
   def syncAndReturnAll(task:(Pipeline) => Unit): Seq[AnyRef] = {
+    this.run(redis => {
+      val pipeline = redis.pipelined()
+
+      task(new SinglePipeline(pipeline))
+
+      pipeline.syncAndReturnAll().toSeq
+    })
+  }
+
+  def syncAndReturnAllSingle(task:(SinglePipeline) => Unit): Seq[AnyRef] = {
     this.run(redis => {
       val pipeline = redis.pipelined()
 

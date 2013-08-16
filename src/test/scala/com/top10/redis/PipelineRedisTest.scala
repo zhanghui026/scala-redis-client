@@ -8,6 +8,7 @@ class PipelineRedisTest extends JUnitSuite with ShouldMatchersForJUnit with Redi
 
   @Before def setup() {
     ensureRedis
+    redis.flushAll
   }
 
   @Test def testNullZscore() =
@@ -36,5 +37,24 @@ class PipelineRedisTest extends JUnitSuite with ShouldMatchersForJUnit with Redi
 
   @Test def testEmptyHGetAll() =
     redis.syncAndReturn1(_.hgetAll("whatevs")) should be (Map())
+
+ 
+
+  @Test def testZUnionStore {
+    val items = Seq(("a", 1.0), ("c", 3.0))
+    val items2 = Seq(("b", 2.0), ("d", 4.0))
+
+    redis.exec(pipeline => items foreach {
+      case (key, score) => pipeline.zadd("test_z_1", score, key)
+    })
+
+    redis.exec(pipeline => items2 foreach {
+      case (key, score) => pipeline.zadd("test_z_2", score, key)
+    })
+
+    redis.execSingle(_.zunionStore("test_z_3", Seq("test_z_1", "test_z_2")))
+
+    redis.zrange("test_z_3", 0, -1) should be (Seq("a", "b", "c", "d"))
+  }
 
 }

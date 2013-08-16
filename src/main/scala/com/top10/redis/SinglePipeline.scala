@@ -98,5 +98,6 @@ class SinglePipeline(redis: _root_.redis.clients.jedis.Pipeline) extends Pipelin
   def zincrBy(key: String, increment: Double, member: String) = redis.zincrby(key, increment, member)
   
   def zinterStore(key: String, strings: Seq[String]) = redis.zinterstore(key, strings: _*)
-  
+
+  def zunionStore(key: String, strings: Seq[String]) = redis.zunionstore(key, strings: _*)
 }
