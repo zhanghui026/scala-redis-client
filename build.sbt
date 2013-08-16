@@ -18,6 +18,8 @@ publishTo <<= version { (v: String) =>
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
 
+credentials += Credentials(Path.userHome / ".sbt" / "sonatype.credentials")
+
 releaseSettings
 
 libraryDependencies ++= Seq(
