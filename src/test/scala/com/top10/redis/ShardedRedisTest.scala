@@ -110,4 +110,21 @@ class ShardedRedisTest extends JUnitSuite with ShouldMatchersForJUnit with Redis
     
     shardedRedis.get("test_value") should be (Some("9"))
   }
+
+  @Test def testZRangeSyncAndReturn() {
+    shardedRedis.zadd("zrangeTest", 0, "0")
+    shardedRedis.zadd("zrangeTest", 1, "1")
+    shardedRedis.zadd("zrangeTest", 2, "2")
+    
+    shardedRedis.zrange("zrangeTest", 0, -1) should be (List("0", "1", "2"))
+    
+    
+    val (card, range) = shardedRedis.syncAndReturn[Long, Seq[String]](pipeline => {
+      (pipeline.zcard("zrangeTest"),
+       pipeline.zrange("zrangeTest", 0, -1))
+    })
+    
+    card should be (3)
+    range should be (List("0", "1", "2"))
+  }
 }
