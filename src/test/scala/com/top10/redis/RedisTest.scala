@@ -177,17 +177,16 @@ class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHel
 
   @Test def testZRangeWithScoresSyncAndReturn() {
     redis.flushAll
-    redis2.flushAll
 
     for(i <- 0 until 20) {
-      shardedRedis.zadd("zrangeTest", i, ""+i)
+      redis.zadd("zrangeTest", i, ""+i)
     }
     
-    shardedRedis.zrangeWithScores("zrangeTest", 0, -1) should be ((0 until 20).map(t => (t.toString, t)))
-    shardedRedis.zrevrangeWithScores("zrangeTest", 0, -1) should be ((0 until 20).reverse.map(t => (t.toString, t)))
+    redis.zrangeWithScores("zrangeTest", 0, -1) should be ((0 until 20).map(t => (t.toString, t)))
+    redis.zrevrangeWithScores("zrangeTest", 0, -1) should be ((0 until 20).reverse.map(t => (t.toString, t)))
     
     
-    val (card, range, revrange) = shardedRedis.syncAndReturn[Long, Seq[(String, Double)], Seq[(String, Double)]](pipeline => {
+    val (card, range, revrange) = redis.syncAndReturn[Long, Seq[(String, Double)], Seq[(String, Double)]](pipeline => {
       (pipeline.zcard("zrangeTest"),
        pipeline.zrangeWithScores("zrangeTest", 0, -1),
        pipeline.zrevrangeWithScores("zrangeTest", 0, -1))
