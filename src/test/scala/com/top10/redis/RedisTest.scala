@@ -153,24 +153,49 @@ class RedisTest extends JUnitSuite with ShouldMatchersForJUnit with RedisTestHel
     revrangeWithScore should be (Seq(("2", 2.0), ("1", 1.0), ("0", 0.0)))
   }
 
-  @Test def testZRangeWithScoresSync {
-    redis.zadd("zrangeTest", 0, "0")
-    redis.zadd("zrangeTest", 1, "1")
-    redis.zadd("zrangeTest", 2, "2")
+  @Test def testZRangeSyncAndReturn() {
+    redis.flushAll
 
-    redis.zrange("zrangeTest", 0, -1) should be (List("0", "1", "2"))
-    redis.zrangeWithScores("zrangeTest", 0, -1) should be (Seq("0" -> 0.0, "1" -> 1.0, "2" -> 2.0))
+    for(i <- 0 until 20) {
+      redis.zadd("zrangeTest", i, ""+i)
+    }
+    
+    redis.zrange("zrangeTest", 0, -1) should be ((0 until 20).map(_.toString))
+    redis.zrevrange("zrangeTest", 0, -1) should be ((0 until 20).reverse.map(_.toString))
+    
+    
+    val (card, range, revrange) = redis.syncAndReturn[Long, Seq[String], Seq[String]](pipeline => {
+      (pipeline.zcard("zrangeTest"),
+       pipeline.zrange("zrangeTest", 0, -1),
+       pipeline.zrevrange("zrangeTest", 0, -1))
+    })
+    
+    card should be (20)
+    range should be ((0 until 20).map(_.toString))
+    revrange should be ((0 until 20).reverse.map(_.toString))
+  }
 
-    redis.zrevrange("zrangeTest", 0, -1) should be (List("2", "1", "0"))
-    redis.zrevrangeWithScores("zrangeTest", 0, -1) should be (Seq("2" -> 2.0, "1" -> 1.0, "0" -> 0.0))
+  @Test def testZRangeWithScoresSyncAndReturn() {
+    redis.flushAll
+    redis2.flushAll
 
-    val (range, withScore) = redis.syncAndReturn[Seq[String], Seq[(String, Double)]](pipeline =>
-      (pipeline.zrange("zrangeTest", 0, -1),
-      pipeline.zrangeWithScores("zrangeTest", 0, -1))
-    )
-
-    range should be (Seq("0", "1", "2"))
-    withScore should be (Seq("0" -> 0.0, "1" -> 1.0, "2" -> 2.0))
+    for(i <- 0 until 20) {
+      shardedRedis.zadd("zrangeTest", i, ""+i)
+    }
+    
+    shardedRedis.zrangeWithScores("zrangeTest", 0, -1) should be ((0 until 20).map(t => (t.toString, t)))
+    shardedRedis.zrevrangeWithScores("zrangeTest", 0, -1) should be ((0 until 20).reverse.map(t => (t.toString, t)))
+    
+    
+    val (card, range, revrange) = shardedRedis.syncAndReturn[Long, Seq[(String, Double)], Seq[(String, Double)]](pipeline => {
+      (pipeline.zcard("zrangeTest"),
+       pipeline.zrangeWithScores("zrangeTest", 0, -1),
+       pipeline.zrevrangeWithScores("zrangeTest", 0, -1))
+    })
+    
+    card should be (20)
+    range should be ((0 until 20).map(t => (t.toString, t)))
+    revrange should be ((0 until 20).reverse.map(t => (t.toString, t)))
   }
 
   @Test def get9results {

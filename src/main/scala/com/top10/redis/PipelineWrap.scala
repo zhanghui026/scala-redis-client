@@ -6,6 +6,7 @@ import com.top10.redis.ImplicitJedisMappings._
 import scala.collection.JavaConversions.iterableAsScalaIterable
 import redis.clients.jedis.{Tuple => JedisTuple}
 import PipelineWrap._
+import collection.JavaConverters._
 
 class PipelineWrap (pipe: Pipeline){
 
@@ -110,7 +111,7 @@ class PipelineWrap (pipe: Pipeline){
 }
 
 object PipelineWrap {
-  def setToScalaSeq(s: java.util.Set[String]): Seq[String] = s.toSeq
+  def setToScalaSeq(s: java.util.Set[String]): Seq[String] = s.asScala.toSeq
 
-  def tupleSetToScalaSeq(s: java.util.Set[JedisTuple])(implicit f: JedisTuple => (String, Double)): Seq[(String, Double)] = s.toSeq.map(j => f(j))
+  def tupleSetToScalaSeq(s: java.util.Set[JedisTuple])(implicit f: JedisTuple => (String, Double)): Seq[(String, Double)] = s.asScala.toSeq.map(j => f(j))
 }
